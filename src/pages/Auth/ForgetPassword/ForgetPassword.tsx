@@ -11,6 +11,10 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Link from "@mui/material/Link";
+import {Link as RouterLink} from "react-router-dom";
+
+
+import { toast } from "react-toastify";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -80,7 +84,7 @@ export default function ForgetPassword() {
             If you already have an account register
             <br />
             You can{" "}
-            <Link href="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
+            <Link component={RouterLink} to="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
               Login here !
             </Link>
           </Typography>
