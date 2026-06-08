@@ -416,7 +416,7 @@ export default function Register() {
                 </Typography>
 
                 <Typography sx={{ fontSize: "14px", opacity: 0.9 }}>
-                  Homes as unique as you.
+                  Homes as unique as you
                 </Typography>
               </Box>
             </Box>
