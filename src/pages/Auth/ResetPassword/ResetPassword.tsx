@@ -14,6 +14,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { inputStyles } from "../../../sharedComponent/inputStyles";
+import {Link as RouterLink} from "react-router-dom";
+import { toast } from "react-toastify";
+
 interface ResetPasswordFormData {
   email: string;
   otp: string;
@@ -62,11 +65,13 @@ export default function ResetPassword() {
         throw new Error(result.message || "Bad request. Please try again.");
       }
 
-      setSuccessMsg("Password reset successfully! You can now login.");
+      const msg = "Password reset successfully! You can now login.";
+      setSuccessMsg(msg);
+      toast.success(msg);
     } catch (err: unknown) {
-      setApiError(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setApiError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +112,7 @@ export default function ResetPassword() {
             If you already have an account register
             <br />
             You can{" "}
-            <Link href="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
+            <Link component={RouterLink} to="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
               Login here !
             </Link>
           </Typography>

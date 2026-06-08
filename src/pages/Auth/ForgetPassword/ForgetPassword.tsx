@@ -9,6 +9,10 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import Link from "@mui/material/Link";
+import {Link as RouterLink} from "react-router-dom";
+
+
+import { toast } from "react-toastify";
 
 interface ForgotPasswordFormData {
   email: string;
@@ -47,11 +51,13 @@ export default function ForgetPassword() {
         throw new Error(result.message || "Bad request. Please try again.");
       }
 
-      setSuccessMsg("Reset link sent! Please check your inbox.");
+      const msg = "Reset link sent! Please check your inbox.";
+      setSuccessMsg(msg);
+      toast.success(msg);
     } catch (err: unknown) {
-      setApiError(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setApiError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +94,7 @@ export default function ForgetPassword() {
             If you already have an account register
             <br />
             You can{" "}
-            <Link href="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
+            <Link component={RouterLink} to="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
               Login here !
             </Link>
           </Typography>
