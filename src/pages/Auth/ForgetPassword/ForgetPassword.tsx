@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 import forgetImg from "../../../assets/forget.png";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import Link from "@mui/material/Link";
 
@@ -14,14 +16,9 @@ interface ForgotPasswordFormData {
   email: string;
 }
 
-interface ApiResponse {
-  message?: string;
-}
-
 export default function ForgetPassword() {
   const [isLoading, setIsLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -31,27 +28,21 @@ export default function ForgetPassword() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
-    setApiError(null);
-    setSuccessMsg(null);
 
     try {
-      const response = await fetch("/api/v1/Users/Reset/Request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email }),
-      });
-
-      const result: ApiResponse = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Bad request. Please try again.");
-      }
-
-      setSuccessMsg("Reset link sent! Please check your inbox.");
-    } catch (err: unknown) {
-      setApiError(
-        err instanceof Error ? err.message : "Something went wrong."
+      await axios.post(
+        "https://upskilling-egypt.com:3000/api/v0/portal/users/forgot-password",
+        { email: data.email }
       );
+
+      toast.success("Reset link sent! Please check your inbox.");
+      navigate("/reset-password");
+    } catch (err: unknown) {
+      const message =
+        axios.isAxiosError(err)
+          ? err.response?.data?.message || "Something went wrong. Please try again."
+          : "Something went wrong.";
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -59,6 +50,7 @@ export default function ForgetPassword() {
 
   return (
     <Box sx={{ display: "flex", height: "97vh", overflow: "hidden", bgcolor: "#fff" }}>
+
       {/* ── Left Panel ── */}
       <Box
         sx={{
@@ -102,7 +94,6 @@ export default function ForgetPassword() {
             <Typography sx={{ fontWeight: 600 }}>Email</Typography>
             <TextField
               id="email"
-              // label="Email"
               type="email"
               placeholder="Please type here ..."
               fullWidth
@@ -113,33 +104,19 @@ export default function ForgetPassword() {
                 "& .MuiOutlinedInput-root": {
                   backgroundColor: "#f3f3f5",
                   borderRadius: "8px",
-
-                  "& fieldset": {
-                    border: "none",
-                  },
-
-                  "&:hover fieldset": {
-                    border: "none",
-                  },
-
-                  "&.Mui-focused fieldset": {
-                    border: "none",
-                  },
+                  "& fieldset": { border: "none" },
+                  "&:hover fieldset": { border: "none" },
+                  "&.Mui-focused fieldset": { border: "none" },
                 },
-
                 "& .MuiOutlinedInput-input": {
                   padding: "9px 20px",
                   fontSize: "16px",
                 },
-
                 "& .MuiOutlinedInput-input::placeholder": {
                   color: "#c7c9d1",
                   opacity: 1,
                 },
-
-                "& .MuiInputLabel-root": {
-                  color: "#666",
-                },
+                "& .MuiInputLabel-root": { color: "#666" },
               }}
               {...register("email", {
                 required: "Email is required.",
@@ -149,9 +126,6 @@ export default function ForgetPassword() {
                 },
               })}
             />
-
-            {apiError && <Alert severity="error">{apiError}</Alert>}
-            {successMsg && <Alert severity="success">{successMsg}</Alert>}
 
             <Button
               type="submit"
@@ -175,21 +149,29 @@ export default function ForgetPassword() {
         </Box>
       </Box>
 
-      {/* ── Right Panel — image flush to right edge ── */}
+      {/* ── Right Panel ── */}
       <Box
         sx={{
           flex: 1,
           borderRadius: "16px",
           overflow: "hidden",
-          mr: 2,   
-          ml:-20
+          mr: 2,
+          ml: -20,
         }}
       >
         <Box
           component="img"
           src={forgetImg}
           alt="Forgot password"
-          sx={{ width: "70%", height: "100%", objectFit: "cover",backgroundPosition: "center", display: "block" , ml:35 , borderRadius: "16px" }}
+          sx={{
+            width: "70%",
+            height: "100%",
+            objectFit: "cover",
+            backgroundPosition: "center",
+            display: "block",
+            ml: 35,
+            borderRadius: "16px",
+          }}
         />
       </Box>
     </Box>
