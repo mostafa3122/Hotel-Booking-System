@@ -17,6 +17,7 @@ import { inputStyles } from "../../../sharedComponent/inputStyles";
 import {Link as RouterLink} from "react-router-dom";
 import { toast } from "react-toastify";
 
+import { useNavigate } from "react-router-dom";
 interface ResetPasswordFormData {
   email: string;
   otp: string;
@@ -34,6 +35,7 @@ export default function ResetPassword() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -48,7 +50,7 @@ export default function ResetPassword() {
     setSuccessMsg(null);
 
     try {
-      const response = await fetch("/api/v1/Users/Reset", {
+      const response = await fetch("https://upskilling-egypt.com:3000/api/v0/portal/users/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -65,9 +67,8 @@ export default function ResetPassword() {
         throw new Error(result.message || "Bad request. Please try again.");
       }
 
-      const msg = "Password reset successfully! You can now login.";
-      setSuccessMsg(msg);
-      toast.success(msg);
+      setSuccessMsg("Password reset successfully! You can now login.");
+      navigate("/login");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       setApiError(msg);
