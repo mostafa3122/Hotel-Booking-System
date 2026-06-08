@@ -9,7 +9,6 @@ import Login from "../pages/Auth/Login/Login";
 import Register from "../pages/Auth/Register/Register";
 import ForgetPassword from "../pages/Auth/ForgetPassword/ForgetPassword";
 import ResetPassword from "../pages/Auth/ResetPassword/ResetPassword";
-import VerifyAccount from "../pages/Auth/VerifyAccount/VerifyAccount";
 import Dashboard from "../pages/Admin/Dashboard/Dashboard";
 import ProtectedRoute from "./ProtectedRoute";
 import ChangePassword from "../pages/Auth/ChangePassword/ChangePassword";
@@ -23,7 +22,6 @@ const router = createBrowserRouter([
       { path: "register", element: <Register /> },
       { path: "forget-password", element: <ForgetPassword /> },
       { path: "reset-password", element: <ResetPassword /> },
-      { path: "verify-account", element: <VerifyAccount /> },
       { path: "change-password", element: <ChangePassword /> },
     ],
   },
