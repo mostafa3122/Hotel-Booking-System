@@ -17,7 +17,7 @@ const router = createBrowserRouter([
     path: "/",
     element: <AuthLayout />,
     children: [
-      { index: true, element: <Login /> },
+      { index: true, element: <Navigate to="/login" replace /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "forget-password", element: <ForgetPassword /> },
