@@ -16,11 +16,11 @@ export default function MasterLayout() {
           flexDirection: "column",
           gap: 3,
           minWidth: 0,
-          bgcolor: "pink",
+          bgcolor: "white",
         }}
       >
         <Navbar />
-        <Box component="main" sx={{ flexGrow: 1 }}>
+        <Box component="main" sx={{ flexGrow: 1, minWidth: 0, width: '100%', overflow: 'hidden' }}>
           <Outlet />
         </Box>
       </Box>

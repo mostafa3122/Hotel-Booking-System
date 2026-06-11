@@ -12,6 +12,8 @@ import ResetPassword from "../pages/Auth/ResetPassword/ResetPassword";
 import Dashboard from "../pages/Admin/Dashboard/Dashboard";
 import ProtectedRoute from "./ProtectedRoute";
 import ChangePassword from "../pages/Auth/ChangePassword/ChangePassword";
+import Test from "../shared/Test";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -34,6 +36,7 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Dashboard /> },
+      { path: "rooms", element: <Test/> },
     ],
   },
   {
