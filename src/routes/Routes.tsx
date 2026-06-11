@@ -13,6 +13,8 @@ import VerifyAccount from "../pages/Auth/VerifyAccount/VerifyAccount";
 import Dashboard from "../pages/Admin/Dashboard/Dashboard";
 import ProtectedRoute from "./ProtectedRoute";
 import ChangePassword from "../pages/Auth/ChangePassword/ChangePassword";
+import Rooms from "../pages/Admin/Rooms/Rooms";
+import AddRoom from "../pages/Admin/Rooms/AddRoom";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -36,12 +38,15 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Dashboard /> },
+      {path:'rooms' , element: <Rooms />},
+      {path:'rooms/add' , element: <AddRoom />},
+
     ],
   },
-  {
-    path: "*",
-    element: <Navigate to="/login" />,
-  },
+  // {
+  //   path: "*",
+  //   element: <Navigate to="/login" />,
+  // },
 ]);
 
 export default function AppRoutes() {

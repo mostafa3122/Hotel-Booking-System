@@ -14,7 +14,6 @@ import Link from "@mui/material/Link";
 import {Link as RouterLink} from "react-router-dom";
 
 
-import { toast } from "react-toastify";
 
 interface ForgotPasswordFormData {
   email: string;
