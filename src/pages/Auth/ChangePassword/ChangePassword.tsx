@@ -64,14 +64,14 @@ export default function ChangePassword() {
           Change Password
         </Typography>
 
-        <Typography sx={{ color: "#000", mb: 2, lineHeight: 1.7, fontSize: "16px" }}>
+        {/* <Typography sx={{ color: "#000", mb: 2, lineHeight: 1.7, fontSize: "16px" }}>
           If you already have an account register
           <br />
           You can {" "}
           <Link component={RouterLink} to="/login" underline="hover" sx={{ color: "#EB5148", fontWeight: 600 }}>
             Login here !
           </Link>
-        </Typography>
+        </Typography> */}
 
         <Box
           component="form"
