@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 interface AuthContextType {
   token: string | null;
   userData: any;
+  role: string | null;
   saveUserData: () => void;
   logout: () => void;
 }
@@ -17,22 +18,57 @@ export default function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
+
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+  const [userData, setUserData] = useState<any>(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      try {
+        return jwtDecode(storedToken);
+      } catch (error) {
+        console.error("Error decoding JWT token:", error);
+        return null;
+      }
+    }
+    return null;
+  });
+  const [role, setRole] = useState<string | null>(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
+    if (storedToken) {
+      try {
+        const decoded: any = jwtDecode(storedToken);
+        return storedRole || decoded.userRole || decoded.role || null;
+      } catch (error) {
+        return storedRole;
+      }
+    }
+    return null;
+  });
 
   const saveUserData = () => {
     const storedToken = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("role");
 
     if (storedToken) {
       setToken(storedToken);
-      setUserData(jwtDecode(storedToken));
+      try {
+        const decoded: any = jwtDecode(storedToken);
+        setUserData(decoded);
+        setRole(storedRole || decoded.userRole || decoded.role || null);
+      } catch (error) {
+        console.error("Error decoding JWT token:", error);
+        setRole(storedRole);
+      }
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     setToken(null);
     setUserData(null);
+    setRole(null);
   };
 
   useEffect(() => {
@@ -44,6 +80,7 @@ export default function AuthProvider({
       value={{
         token,
         userData,
+        role,
         saveUserData,
         logout,
       }}

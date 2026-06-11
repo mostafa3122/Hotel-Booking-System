@@ -1,8 +1,9 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { API_BASE_URL } from "../../config/api";
 
 const axiosClient = axios.create({
-  baseURL: "https://upskilling-egypt.com:3000/api/v0/",
+  baseURL: API_BASE_URL,
 });
 
 axiosClient.interceptors.request.use(
