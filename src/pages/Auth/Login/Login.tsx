@@ -53,6 +53,10 @@ export default function Login() {
       if (userRole) {
         localStorage.setItem("role", userRole);
       }
+      const userName = result.data?.user?.userName || result.data?.user?.name;
+      if (userName) {
+        localStorage.setItem("userName", userName);
+      }
       saveUserData();
       toast.success("Logged in successfully!");
       navigate("/dashboard");
