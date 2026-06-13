@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowsProp } from '@mui/x-data-grid';
-import { Paper, IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import type { GridValidRowModel } from '@mui/x-data-grid';
 
-interface CustomTableProps {
-    rows: GridRowsProp;
-    columns: GridColDef[];
-    onView?: (row: any) => void;
-    onEdit?: (row: any) => void;
-    onDelete?: (row: any) => void;
+interface CustomTableProps<R extends GridValidRowModel = any> {
+    rows: R[];
+    columns: GridColDef<R>[];
+    onView?: (row: R) => void;
+    onEdit?: (row: R) => void;
+    onDelete?: (row: R) => void;
     rowCount?: number;
     loading?: boolean;
     paginationMode?: 'client' | 'server';
@@ -19,8 +20,7 @@ interface CustomTableProps {
     onPaginationModelChange?: (model: any) => void;
     height?: string | number;
 }
-
-export default function CustomTable({
+export default function CustomTable<R extends GridValidRowModel = any>({
     rows,
     columns,
     onView,
@@ -32,11 +32,11 @@ export default function CustomTable({
     paginationModel,
     onPaginationModelChange,
     height = 500
-}: CustomTableProps) {
+}: CustomTableProps<R>) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedRow, setSelectedRow] = useState<any>(null);
+    const [selectedRow, setSelectedRow] = useState<R | null>(null);
 
-    const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, row: any) => {
+    const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, row: R) => {
         setAnchorEl(event.currentTarget);
         setSelectedRow(row);
     };
@@ -47,7 +47,7 @@ export default function CustomTable({
 
     const hasActions = onView || onEdit || onDelete;
 
-    const finalColumns: GridColDef[] = hasActions
+    const finalColumns: GridColDef<R>[] = hasActions
         ? [
             ...columns,
             {
@@ -58,7 +58,7 @@ export default function CustomTable({
                 width: 80,
                 align: 'center',
                 headerAlign: 'center',
-                renderCell: (params: GridRenderCellParams) => (
+                renderCell: (params: GridRenderCellParams<R>) => (
                     <IconButton onClick={(e) => handleOpenMenu(e, params.row)}>
                         <MoreHorizIcon sx={{ color: '#1F263E' }} />
                     </IconButton>
@@ -140,6 +140,16 @@ export default function CustomTable({
                     '& .MuiDataGrid-row:nth-of-type(even)': {
                         backgroundColor: '#F8F9FB',
                     },
+
+                    '& .MuiTablePagination-actions': {
+                        marginRight: '20px',
+                    },
+                    '& .MuiTablePagination-actions .MuiIconButton-root': {
+                        color: '#1F263E',
+                        '&.Mui-disabled': {
+                            color: '#C2C6CE',
+                        },
+                    },
                 }}
             />
 
@@ -199,19 +209,19 @@ export default function CustomTable({
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
                     {onView && (
-                        <MenuItem onClick={() => { onView(selectedRow); handleCloseMenu(); }}>
+                        <MenuItem onClick={() => { if (selectedRow) onView(selectedRow); handleCloseMenu(); }}>
                             <VisibilityOutlinedIcon sx={{ fontSize: '18px', color: '#203FC7' }} />
                             View
                         </MenuItem>
                     )}
                     {onEdit && (
-                        <MenuItem onClick={() => { onEdit(selectedRow); handleCloseMenu(); }}>
+                        <MenuItem onClick={() => { if (selectedRow) onEdit(selectedRow); handleCloseMenu(); }}>
                             <EditOutlinedIcon sx={{ fontSize: '18px', color: '#203FC7' }} />
                             Edit
                         </MenuItem>
                     )}
                     {onDelete && (
-                        <MenuItem onClick={() => { onDelete(selectedRow); handleCloseMenu(); }}>
+                        <MenuItem onClick={() => { if (selectedRow) onDelete(selectedRow); handleCloseMenu(); }}>
                             <DeleteOutlinedIcon sx={{ fontSize: '18px', color: '#203FC7' }} />
                             Delete
                         </MenuItem>

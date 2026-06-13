@@ -22,9 +22,11 @@ export default function AuthProvider({
   const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
   const [userData, setUserData] = useState<any>(() => {
     const storedToken = localStorage.getItem("token");
+    const storedUserName = localStorage.getItem("userName");
     if (storedToken) {
       try {
-        return jwtDecode(storedToken);
+        const decoded = jwtDecode(storedToken) as any;
+        return { ...decoded, userName: storedUserName || decoded.userName };
       } catch (error) {
         console.error("Error decoding JWT token:", error);
         return null;
@@ -49,12 +51,13 @@ export default function AuthProvider({
   const saveUserData = () => {
     const storedToken = localStorage.getItem("token");
     const storedRole = localStorage.getItem("role");
+    const storedUserName = localStorage.getItem("userName");
 
     if (storedToken) {
       setToken(storedToken);
       try {
         const decoded: any = jwtDecode(storedToken);
-        setUserData(decoded);
+        setUserData({ ...decoded, userName: storedUserName || decoded.userName });
         setRole(storedRole || decoded.userRole || decoded.role || null);
       } catch (error) {
         console.error("Error decoding JWT token:", error);
@@ -66,6 +69,7 @@ export default function AuthProvider({
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("userName");
     setToken(null);
     setUserData(null);
     setRole(null);
