@@ -4,6 +4,8 @@ import { Box, Typography } from '@mui/material';
 import CustomTable from './components/CustomTable/CustomTable';
 import axiosClient from '../services/api/axiosClient';
 import Header from './Header/Header';
+import TableFilters from './components/TableFilters/TableFilters';
+import useDebounce from './utils/useDebounce';
 
 interface Facility {
     _id?: string;
@@ -24,22 +26,37 @@ export default function Test() {
     const [rooms, setRooms] = useState<Room[]>([]);
     const [totalCount, setTotalCount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
+    
+    const [searchValue, setSearchValue] = useState<string>('');
+    const debouncedSearch = useDebounce(searchValue, 500);
+
     const [paginationModel, setPaginationModel] = useState({
         page: 0,
         pageSize: 10,
     });
 
-    const fetchRooms = async (page: number, size: number) => {
+    const fetchRooms = async (
+        page: number,
+        size: number,
+        search: string
+    ) => {
         try {
             setLoading(true);
             const apiPage = page + 1;
-            const response = await axiosClient.get(`/admin/rooms`, {
-                params: {
-                    page: apiPage,
-                    size: size,
-                },
-            });
+            const params: any = {
+                page: apiPage,
+                size: size,
+            };
+            if (search) {
+                params.roomNumber = search;
+            }
+
+            console.log('fetchRooms API Request params:', params);
+            const response = await axiosClient.get(`/admin/rooms`, { params });
+            console.log('fetchRooms API Response:', response.data);
+
             const roomsData = response.data?.data?.rooms || [];
+            console.log('Rooms extracted from response:', roomsData);
             const count = response.data?.data?.totalCount || roomsData.length;
             setRooms(roomsData);
             setTotalCount(count);
@@ -50,9 +67,19 @@ export default function Test() {
         }
     };
 
+    
     useEffect(() => {
-        fetchRooms(paginationModel.page, paginationModel.pageSize);
-    }, [paginationModel]);
+        setPaginationModel((prev) => ({ ...prev, page: 0 }));
+    }, [debouncedSearch]);
+
+   
+    useEffect(() => {
+        fetchRooms(
+            paginationModel.page,
+            paginationModel.pageSize,
+            debouncedSearch
+        );
+    }, [paginationModel.page, paginationModel.pageSize, debouncedSearch]);
 
     const handleView = (row: Room) => {
         console.log('View action clicked on row:', row);
@@ -123,6 +150,18 @@ export default function Test() {
             }
         },
     ];
+    
+ 
+    const displayedRooms = rooms.filter((room) => {
+        if (searchValue) {
+            const searchStr = searchValue.toLowerCase();
+            const roomNumStr = String(room.roomNumber).toLowerCase();
+            if (!roomNumStr.includes(searchStr)) {
+                return false;
+            }
+        }
+        return true;
+    });
 
     return (
         <Box sx={{ p: 2.5, width: '100%', minWidth: 0, overflow: 'hidden' }}>
@@ -132,8 +171,14 @@ export default function Test() {
                 btnText="Add New Room"
                 onBtnClick={() => console.log('Add New Room clicked')}
             />
+            <TableFilters
+                searchValue={searchValue}
+                onSearchChange={setSearchValue}
+                searchPlaceholder="Search here ..."
+                fields={[]} // this will be used when you want to add filters (zy tag aw category )
+            />
             <CustomTable
-                rows={rooms}
+                rows={displayedRooms}
                 columns={columns}
                 onView={handleView}
                 onEdit={handleEdit}
