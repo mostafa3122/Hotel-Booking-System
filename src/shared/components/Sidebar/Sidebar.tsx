@@ -103,7 +103,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           },
         }}
       >
-        {/* HEADER */}
+      
         <Box
           sx={{
             display: "flex",
@@ -113,7 +113,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             mb: 3,
           }}
         >
-          {!isCollapsed && <img src={logo} style={{ width: 110 }} />}
 
           <IconButton
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -162,7 +161,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           ))}
         </List>
 
-        {/* LOGOUT */}
         <Box
           onClick={() => setOpenLogoutDialog(true)}
           sx={{
@@ -183,7 +181,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
         </Box>
       </Drawer>
 
-      {/* CONFIRM DIALOG */}
+   
       <ConfirmationDialog
         open={openLogoutDialog}
         onClose={() => setOpenLogoutDialog(false)}

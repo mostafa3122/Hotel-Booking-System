@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import  DeleteIMG  from "../../../assets/deleteImg.png";
+import { t } from "i18next";
 interface ConfirmationDialogProps {
   open: boolean;
   onClose: () => void;
@@ -76,7 +77,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
       </Box>
       <DialogActions sx={{ justifyContent: "center", pb: 3, gap: 2 }}>
         <Button onClick={onClose} variant="outlined" color="inherit">
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           onClick={onConfirm}
