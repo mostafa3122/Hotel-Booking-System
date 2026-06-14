@@ -100,8 +100,8 @@ function ImageUploadZone({
           onChange={(e) => addFiles(e.target.files)}
         />
         <CloudUploadIcon sx={{ fontSize: 42, color: "#22c55e" }} />
-        {/* ✅ Fix 1: no nested Typography — use a <span> directly for the inline link style */}
-        <Typography variant="body2" color="text.secondary" textAlign="center">
+        
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
           Drag & Drop or{" "}
           <Box
             component="span"
@@ -247,10 +247,10 @@ const AddRoom = () => {
             <ArrowBackIcon fontSize="small" />
           </IconButton>
           <Box>
-            <Typography variant="h6" fontWeight={700} color="text.primary">
+            <Typography variant="h6"  color="text.primary" sx={{fontWeight:700}}>
               Add New Room
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
               Fill in the details to create a new room
             </Typography>
           </Box>
@@ -285,8 +285,8 @@ const AddRoom = () => {
 
           {/* Price + Capacity */}
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              {/* ✅ Fix 2: use slotProps instead of InputProps (MUI v6) */}
+            <Grid size={{ xs: 12, sm: 6 }}>
+             
               <TextField
                 label="Price"
                 placeholder="e.g. 500"
@@ -303,7 +303,7 @@ const AddRoom = () => {
                 sx={inputSx}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Capacity"
                 placeholder="e.g. 2"
@@ -336,7 +336,7 @@ const AddRoom = () => {
 
           {/* Facilities */}
           {/* ✅ Fix 3: type renderTags params explicitly so TS is happy */}
-          <Autocomplete<Facility, true, false, false>
+         <Autocomplete<Facility, true, false, false>
             multiple
             options={facilities}
             getOptionLabel={(option) => option.name}
@@ -346,15 +346,22 @@ const AddRoom = () => {
               setErrors((p) => ({ ...p, facilities: "" }));
             }}
             loading={loadingFacilities}
-            isOptionEqualToValue={(option, value) => option._id === value._id}
-            renderTags={(value: Facility[], getTagProps: AutocompleteRenderGetTagProps) =>
-              value.map((option, index) => (
+            isOptionEqualToValue={(option, value) =>
+              option._id === value._id
+            }
+            renderValue={(selected) =>
+              selected.map((option) => (
                 <Chip
+                  key={option._id}
                   label={option.name}
                   size="small"
-                  {...getTagProps({ index })}
-                  key={option._id}
-                  sx={{ bgcolor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", fontSize: 12 }}
+                  sx={{
+                    bgcolor: "#eff6ff",
+                    color: "#2563eb",
+                    border: "1px solid #bfdbfe",
+                    fontSize: 12,
+                    mr: 0.5,
+                  }}
                 />
               ))
             }
@@ -362,26 +369,18 @@ const AddRoom = () => {
               <TextField
                 {...params}
                 label="Facilities"
-                placeholder={selectedFacilities.length === 0 ? "Select facilities…" : ""}
+                placeholder={
+                  selectedFacilities.length === 0
+                    ? "Select facilities..."
+                    : ""
+                }
                 size="small"
                 error={!!errors.facilities}
                 helperText={errors.facilities}
                 sx={inputSx}
-                slotProps={{
-                  input: {
-                    ...params.InputProps,
-                    endAdornment: (
-                      <>
-                        {loadingFacilities && <CircularProgress size={14} />}
-                        {params.InputProps?.endAdornment ?? null}
-                      </>
-                    ),
-                  },
-                }}
               />
             )}
           />
-
           {/* Image Upload */}
           <Box>
             {/* ✅ Fix 1 (label): plain span via Box instead of nested Typography */}

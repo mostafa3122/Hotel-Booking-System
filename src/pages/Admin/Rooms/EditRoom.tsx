@@ -1,3 +1,7 @@
+import CircularProgress from "@mui/material/CircularProgress";
+import Autocomplete from "@mui/material/Autocomplete";
+import type { AutocompleteRenderGetTagProps } from "@mui/material";
+import Chip from "@mui/material/Chip";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import axiosClient from "../../../services/api/axiosClient";
@@ -10,12 +14,8 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
-import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
-import Autocomplete from "@mui/material/Autocomplete";
-import type { AutocompleteRenderGetTagProps } from "@mui/material";
-import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -79,7 +79,6 @@ function ImageUploadZone({
 
   return (
     <Box>
-      {/* Drop zone */}
       <Box
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
@@ -105,10 +104,10 @@ function ImageUploadZone({
           hidden
           multiple
           accept="image/*"
-          onChange={(e) => addFiles(e.target.files)}
+          onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
         />
         <CloudUploadIcon sx={{ fontSize: 38, color: "#22c55e" }} />
-        <Typography variant="body2" color="text.secondary" textAlign="center">
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
           Drag & Drop or{" "}
           <Box component="span" sx={{ color: "#2563eb", fontWeight: 600 }}>
             Choose images
@@ -120,7 +119,6 @@ function ImageUploadZone({
         </Typography>
       </Box>
 
-      {/* Existing images (from server) */}
       {existingUrls.length > 0 && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="caption" sx={{ color: "text.disabled", mb: 1, display: "block" }}>
@@ -135,19 +133,12 @@ function ImageUploadZone({
                   onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                     e.currentTarget.src = "https://placehold.co/88x88?text=img";
                   }}
-                  sx={{
-                    width: "100%", height: "100%", objectFit: "cover",
-                    borderRadius: 2, border: "2px solid #e5e7eb",
-                  }}
+                  sx={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 2, border: "2px solid #e5e7eb" }}
                 />
                 <IconButton
                   size="small"
                   onClick={(ev) => { ev.stopPropagation(); onRemoveExisting(i); }}
-                  sx={{
-                    position: "absolute", top: -7, right: -7,
-                    bgcolor: "#ef4444", color: "#fff", width: 22, height: 22,
-                    "&:hover": { bgcolor: "#dc2626" },
-                  }}
+                  sx={{ position: "absolute", top: -7, right: -7, bgcolor: "#ef4444", color: "#fff", width: 22, height: 22, "&:hover": { bgcolor: "#dc2626" } }}
                 >
                   <CloseIcon sx={{ fontSize: 13 }} />
                 </IconButton>
@@ -157,7 +148,6 @@ function ImageUploadZone({
         </Box>
       )}
 
-      {/* New files queued for upload */}
       {newFiles.length > 0 && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="caption" sx={{ color: "#16a34a", fontWeight: 600, mb: 1, display: "block" }}>
@@ -169,43 +159,21 @@ function ImageUploadZone({
                 <Box
                   component="img"
                   src={URL.createObjectURL(file)}
-                  sx={{
-                    width: "100%", height: "100%", objectFit: "cover",
-                    borderRadius: 2, border: "2px solid #22c55e",
-                  }}
+                  sx={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 2, border: "2px solid #22c55e" }}
                 />
-                {/* New badge */}
-                <Box sx={{
-                  position: "absolute", bottom: 4, left: 4,
-                  bgcolor: "#22c55e", color: "#fff",
-                  fontSize: 9, fontWeight: 700, px: 0.6, py: 0.2,
-                  borderRadius: 0.5, lineHeight: 1.4,
-                }}>
+                <Box sx={{ position: "absolute", bottom: 4, left: 4, bgcolor: "#22c55e", color: "#fff", fontSize: 9, fontWeight: 700, px: 0.6, py: 0.2, borderRadius: 0.5, lineHeight: 1.4 }}>
                   NEW
                 </Box>
                 <IconButton
                   size="small"
                   onClick={(ev) => { ev.stopPropagation(); removeNew(i); }}
-                  sx={{
-                    position: "absolute", top: -7, right: -7,
-                    bgcolor: "#ef4444", color: "#fff", width: 22, height: 22,
-                    "&:hover": { bgcolor: "#dc2626" },
-                  }}
+                  sx={{ position: "absolute", top: -7, right: -7, bgcolor: "#ef4444", color: "#fff", width: 22, height: 22, "&:hover": { bgcolor: "#dc2626" } }}
                 >
                   <CloseIcon sx={{ fontSize: 13 }} />
                 </IconButton>
               </Box>
             ))}
           </Box>
-        </Box>
-      )}
-
-      {/* Empty state warning */}
-      {totalCount === 0 && (
-        <Box sx={{ mt: 1.5, p: 1.5, bgcolor: "#fef2f2", borderRadius: 1.5, border: "1px solid #fecaca" }}>
-          <Typography variant="caption" sx={{ color: "#dc2626", fontWeight: 500 }}>
-            At least one image is required.
-          </Typography>
         </Box>
       )}
     </Box>
@@ -217,17 +185,15 @@ const EditRoom = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const originalRoom = useRef({ roomNumber: "", price: "", capacity: "", discount: "" });
   const [form, setForm] = useState({ roomNumber: "", price: "", capacity: "", discount: "" });
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
-
   const [allFacilities, setAllFacilities] = useState<Facility[]>([]);
   const [selectedFacilities, setSelectedFacilities] = useState<Facility[]>([]);
   const [loadingFacilities, setLoadingFacilities] = useState(false);
-
   const [loadingRoom, setLoadingRoom] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // ── Fetch room + facilities ──────────────────────────────────────────────
   useEffect(() => {
@@ -243,20 +209,34 @@ const EditRoom = () => {
         const roomPayload = roomRes.data?.data;
         const room = roomPayload?.room ?? roomPayload;
 
-        setForm({
+        const values = {
           roomNumber: room.roomNumber ?? "",
           price:      String(room.price ?? ""),
           capacity:   String(room.capacity ?? ""),
           discount:   String(room.discount ?? "0"),
-        });
+        };
+        setForm(values);
+        originalRoom.current = values;
         setExistingImages(Array.isArray(room.images) ? room.images : []);
 
-        const facPayload = facRes.data?.data;
-        const facList: Facility[] = facPayload?.facilities ?? facPayload?.roomFacilities ?? facPayload ?? [];
+        // Load all facilities for the dropdown
+        // Response: { success, data: { facilities: [...], totalCount: N } }
+        const facList: Facility[] = facRes.data?.data?.facilities ?? [];
+        console.log("facList length:", facList.length, facList);
         setAllFacilities(facList);
 
-        const roomFacIds: string[] = (room.facilities ?? []).map((f: Facility) => f._id);
-        setSelectedFacilities(facList.filter((f) => roomFacIds.includes(f._id)));
+        // Pre-select whatever facilities the room already has
+        const roomFacs: Array<Facility | string> = room.facilities ?? [];
+        const roomFacIds = roomFacs.map((f) =>
+          typeof f === "string" ? f : (f as Facility)._id
+        );
+        const preSelected = facList.filter((f) => roomFacIds.includes(f._id));
+        // fallback: use room objects directly if they have name
+        const finalSelected = preSelected.length > 0
+          ? preSelected
+          : roomFacs.filter((f): f is Facility => typeof f === "object" && !!f._id && !!f.name);
+        setSelectedFacilities(finalSelected);
+
       } catch (err: unknown) {
         const msg = axios.isAxiosError(err)
           ? err.response?.data?.message || "Failed to load room."
@@ -271,34 +251,22 @@ const EditRoom = () => {
     if (id) fetchAll();
   }, [id]);
 
-  // ── Validation ───────────────────────────────────────────────────────────
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!form.price || isNaN(Number(form.price))) e.price = "Valid price is required.";
-    if (!form.capacity || isNaN(Number(form.capacity))) e.capacity = "Valid capacity is required.";
-    if (selectedFacilities.length === 0) e.facilities = "At least one facility is required.";
-    return e;
-  };
-
   // ── Submit ───────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
-
-    if (existingImages.length + newImages.length === 0) {
-      toast.warning("Please keep or upload at least one room image.");
+    if (selectedFacilities.length === 0) {
+      toast.error("Please select at least one facility.");
       return;
     }
-
     setIsSubmitting(true);
     try {
+      const orig = originalRoom.current;
       const fd = new FormData();
-      fd.append("price",    form.price);
-      fd.append("capacity", form.capacity);
-      fd.append("discount", form.discount || "0");
+      fd.append("roomNumber", form.roomNumber || orig.roomNumber);
+      fd.append("price",      form.price      || orig.price);
+      fd.append("capacity",   form.capacity   || orig.capacity);
+      fd.append("discount",   form.discount   || orig.discount || "0");
+      // Send selected facilities — backend always requires at least one
       selectedFacilities.forEach((f) => fd.append("facilities", f._id));
-
-      // API only accepts new File objects under "imgs"
       newImages.forEach((img) => fd.append("imgs", img));
 
       await axiosClient.put(`admin/rooms/${id}`, fd, {
@@ -326,7 +294,7 @@ const EditRoom = () => {
         </Box>
         <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid #f3f4f6", p: { xs: 2.5, sm: 4 }, width: "100%", maxWidth: 720 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} variant="rounded" height={42} />)}
+            {[1, 2, 3, 4].map((i) => <Skeleton key={i} variant="rounded" height={42} />)}
             <Skeleton variant="rounded" height={160} />
           </Box>
         </Paper>
@@ -348,7 +316,9 @@ const EditRoom = () => {
             <ArrowBackIcon fontSize="small" />
           </IconButton>
           <Box>
-            <Typography variant="h6" fontWeight={700} color="text.primary">Edit Room</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: "text.primary" }}>
+              Edit Room
+            </Typography>
             <Typography variant="body2" color="text.secondary">
               Update the details for room {form.roomNumber}
             </Typography>
@@ -360,33 +330,22 @@ const EditRoom = () => {
       <Paper elevation={0} sx={{ borderRadius: 3, border: "1px solid #f3f4f6", p: { xs: 2.5, sm: 4 }, width: "100%", maxWidth: 720 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
 
-          {/* Room Number */}
-          <TextField
-            label="Room Number" fullWidth size="small"
-            value={form.roomNumber}
-            onChange={(e) => { setForm((p) => ({ ...p, roomNumber: e.target.value })); setErrors((p) => ({ ...p, roomNumber: "" })); }}
-            error={!!errors.roomNumber} helperText={errors.roomNumber}
-            sx={inputSx}
-          />
-
           {/* Price + Capacity */}
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid  size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Price" fullWidth size="small" type="number"
                 value={form.price}
-                onChange={(e) => { setForm((p) => ({ ...p, price: e.target.value })); setErrors((p) => ({ ...p, price: "" })); }}
-                error={!!errors.price} helperText={errors.price}
+                onChange={(e) => setForm((p) => ({ ...p, price: e.target.value }))}
                 slotProps={{ input: { startAdornment: <InputAdornment position="start">$</InputAdornment> } }}
                 sx={inputSx}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid  size={{ xs: 12, sm: 6 }}>
               <TextField
                 label="Capacity" fullWidth size="small" type="number"
                 value={form.capacity}
-                onChange={(e) => { setForm((p) => ({ ...p, capacity: e.target.value })); setErrors((p) => ({ ...p, capacity: "" })); }}
-                error={!!errors.capacity} helperText={errors.capacity}
+                onChange={(e) => setForm((p) => ({ ...p, capacity: e.target.value }))}
                 sx={inputSx}
               />
             </Grid>
@@ -402,50 +361,46 @@ const EditRoom = () => {
           />
 
           {/* Facilities */}
-          <Autocomplete<Facility, true, false, false>
+            <Autocomplete<Facility, true, false, false>
             multiple
             options={allFacilities}
             getOptionLabel={(o) => o.name}
             value={selectedFacilities}
-            onChange={(_, v) => { setSelectedFacilities(v); setErrors((p) => ({ ...p, facilities: "" })); }}
+            onChange={(_, v) => setSelectedFacilities(v)}
             loading={loadingFacilities}
             isOptionEqualToValue={(o, v) => o._id === v._id}
-            renderTags={(value: Facility[], getTagProps: AutocompleteRenderGetTagProps) =>
-              value.map((option, index) => (
-                <Chip
-                  label={option.name} size="small"
-                  {...getTagProps({ index })} key={option._id}
-                  sx={{ bgcolor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", fontSize: 12 }}
-                />
-              ))
-            }
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Facilities"
                 placeholder={selectedFacilities.length === 0 ? "Select facilities…" : ""}
                 size="small"
-                error={!!errors.facilities} helperText={errors.facilities}
                 sx={inputSx}
                 slotProps={{
                   input: {
-                    ...params.InputProps,
+                   ...(params as any).InputProps,
                     endAdornment: (
                       <>
                         {loadingFacilities && <CircularProgress size={14} />}
-                        {params.InputProps?.endAdornment ?? null}
+                        {(params as any).InputProps?.endAdornment}
                       </>
                     ),
                   },
                 }}
               />
             )}
+            slotProps={{
+              chip: {
+                size: "small",
+                sx: { bgcolor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", fontSize: 12 },
+              },
+            }}
           />
 
           {/* Images */}
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 600, color: "text.secondary", mb: 1 }}>
-              Room Images <Box component="span" sx={{ color: "error.main" }}>*</Box>
+              Room Images
             </Typography>
             <ImageUploadZone
               existingUrls={existingImages}

@@ -138,7 +138,7 @@ const RoomDetails = () => {
             <ArrowBackIcon fontSize="small" />
           </IconButton>
           <Box>
-            <Typography variant="h6" fontWeight={700} color="text.primary">
+            <Typography variant="h6"  color="text.primary" sx={{fontWeight:700}}>
               Room Details
             </Typography>
             <Typography variant="body2" color="text.secondary">
