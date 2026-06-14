@@ -19,11 +19,15 @@ import RoomDetails from "../pages/Admin/Rooms/RoomDetails";
 import EditRoom from "../pages/Admin/Rooms/EditRoom";
 import AdsList from "../pages/Admin/Ads/AdsList/AdsList";
 import Booking from "../pages/Admin/Booking/Booking";
+import FacilitiesList from "../pages/Admin/Facilities/FacilitiesList/FacilitiesList";
+import UsersList from "../pages/Admin/Users/UsersList/UsersList";
+import NotFound from "../shared/components/NotFound/NotFound";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthLayout />,
+    errorElement:<NotFound/>,
     children: [
       { index: true, element: <Navigate to="/login" replace /> },
       { path: "login", element: <Login /> },
@@ -40,22 +44,22 @@ const router = createBrowserRouter([
         <MasterLayout />
       </ProtectedRoute>
     ),
+        errorElement:<NotFound/>,
+
     children: [
       { index: true, element: <Dashboard /> },
-      { path: "test-rooms", element: <Test/> },
-      { path: "rooms", element: <Rooms/> },
+      { path: "test-rooms", element: <Test /> },
+      { path: "rooms", element: <Rooms /> },
       { path: "rooms/add", element: <AddRoom /> },
       { path: "rooms/:id/edit", element: <EditRoom /> },
       { path: "rooms/:id", element: <RoomDetails /> },
-      { path: "rooms", element: <Test/> },
-      { path: "ads", element: <AdsList/> },
-      { path: "bookings", element: <Booking/> },
+      { path: "ads", element: <AdsList /> },
+      { path: "facilities", element: <FacilitiesList /> },
+      { path: "users", element: <UsersList /> },
+      { path: "bookings", element: <Booking /> },
     ],
   },
-   {
-     path: "*",
-     element: <Navigate to="/login" />,
-   },
+ 
 ]);
 
 export default function AppRoutes() {
