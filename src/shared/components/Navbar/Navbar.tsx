@@ -60,6 +60,12 @@ export default function Navbar() {
     handleCloseMenu();
   };
 
+  
+  const handleGoToProfile = () => {
+    handleCloseMenu();
+    navigate("/dashboard/profile"); 
+  };
+
   return (
     <>
       <Box
@@ -96,7 +102,6 @@ export default function Navbar() {
               fontSize: 20,
             }}
           />
-
           <InputBase
             placeholder={t("searchHere")}
             sx={{
@@ -256,16 +261,17 @@ export default function Navbar() {
             },
           }}
         >
-          <MenuItem onClick={handleCloseMenu}>
-            <PersonOutlinedIcon sx={{ fontSize: 20, color: "#8A92A6" }} />
-            {t("profile")}
+          
+          <MenuItem onClick={handleGoToProfile}>
+            <PersonOutlinedIcon sx={{ fontSize: 18, mr: 1, color: "#1976d2" }} />
+            <Typography sx={{ fontSize: 14 }}>{t("profile")}</Typography>
           </MenuItem>
 
           <Divider sx={{ my: "4px !important", borderColor: "#F1F5F9" }} />
 
-          <MenuItem onClick={handleOpenLogoutDialog} sx={{ color: "#EA5455 !important" }}>
-            <LogoutIcon sx={{ fontSize: 20, color: "#EA5455" }} />
-            {t("logout")}
+          <MenuItem onClick={handleOpenLogoutDialog} sx={{ color: "#EA5455" }}>
+            <LogoutIcon sx={{ fontSize: 18, mr: 1 }} />
+            <Typography sx={{ fontSize: 14 }}>{t("logout")}</Typography>
           </MenuItem>
         </Menu>
       </Box>
