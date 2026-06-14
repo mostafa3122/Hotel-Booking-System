@@ -11,7 +11,8 @@ import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import PrecisionManufacturingOutlinedIcon from "@mui/icons-material/PrecisionManufacturingOutlined";
 import { AuthContext } from "../../../context/AuthContext";
-import logo from "../../../assets/Logo.svg";
+import { useTranslation } from 'react-i18next';
+
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -19,6 +20,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
+    const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
+
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -28,13 +32,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     };
 
     const menuItems = [
-        { text: "Home", icon: <HomeOutlinedIcon />, path: "/dashboard" },
-        { text: "Users", icon: <PeopleOutlinedIcon />, path: "/dashboard/users" },
-        { text: "Rooms", icon: <GridViewOutlinedIcon />, path: "/dashboard/rooms" },
-        { text: "Ads", icon: <CalendarMonthOutlinedIcon />, path: "/dashboard/ads" },
-        { text: "Bookings", icon: <PeopleOutlinedIcon />, path: "/dashboard/bookings" },
-        { text: "Facilities", icon: <PrecisionManufacturingOutlinedIcon />, path: "/dashboard/facilities" },
-        { text: "Change password", icon: <LockOutlinedIcon />, path: "/change-password" },
+        { text: t("Home"), icon: <HomeOutlinedIcon />, path: "/dashboard" },
+        { text: t("Users"), icon: <PeopleOutlinedIcon />, path: "/dashboard/users" },
+        { text: t("Rooms"), icon: <GridViewOutlinedIcon />, path: "/dashboard/rooms" },
+        { text: t("Ads"), icon: <CalendarMonthOutlinedIcon />, path: "/dashboard/ads" },
+        { text: t("Bookings"), icon: <PeopleOutlinedIcon />, path: "/dashboard/bookings" },
+        { text: t("Facilities"), icon: <PrecisionManufacturingOutlinedIcon />, path: "/dashboard/facilities" },
+        { text: t("Change password"), icon: <LockOutlinedIcon />, path: "/change-password" },
     ];
 
     const currentWidth = isCollapsed ? { xs: "70px", sm: "85px" } : "260px";
@@ -42,6 +46,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     return (
         <Drawer
             variant="permanent"
+            anchor={isRtl ? "right" : "left"}
             sx={{
                 width: currentWidth,
                 flexShrink: 0,
@@ -57,7 +62,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                     flexDirection: "column",
                     py: 3,
                     transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    boxShadow: "4px 0 25px rgba(0, 0, 0, 0.05)",
+                    boxShadow: isRtl ? "-4px 0 25px rgba(0, 0, 0, 0.05)" : "4px 0 25px rgba(0, 0, 0, 0.05)",
                 },
             }}
         >
@@ -65,7 +70,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             <Box
                 sx={{
                     display: "flex",
-                    justifyContent: isCollapsed ? "center" : "space-between",
+                    justifyContent: isCollapsed ? "center" : "flex-end",
                     alignItems: "center",
                     px: isCollapsed ? 1 : 3,
                     mb: 3,
@@ -73,12 +78,6 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                 }}
             >
                
-                {!isCollapsed && (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <img src={logo} alt="Logo" style={{ width: "110px", height: "auto" }} />
-                    </Box>
-                )}
-
                 <IconButton
                     onClick={() => setIsCollapsed(!isCollapsed)}
                     sx={{
@@ -92,9 +91,9 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                     }}
                 >
                     {isCollapsed ? (
-                        <KeyboardDoubleArrowRightIcon sx={{ fontSize: "20px" }} />
+                        isRtl ? <KeyboardDoubleArrowLeftIcon sx={{ fontSize: "20px" }} /> : <KeyboardDoubleArrowRightIcon sx={{ fontSize: "20px" }} />
                     ) : (
-                        <KeyboardDoubleArrowLeftIcon sx={{ fontSize: "20px" }} />
+                        isRtl ? <KeyboardDoubleArrowRightIcon sx={{ fontSize: "20px" }} /> : <KeyboardDoubleArrowLeftIcon sx={{ fontSize: "20px" }} />
                     )}
                 </IconButton>
             </Box>
@@ -197,7 +196,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
                             lineHeight: 1,
                         }}
                     >
-                        Logout
+                        {t("Logout")}
                     </Typography>
                 )}
             </Box>

@@ -8,12 +8,22 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import { AuthContext } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import avatar from "../../../assets/avatar.png";
+import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
 
 export default function Navbar() {
+      const { t, i18n } = useTranslation();
+    const isRtl = i18n.language.startsWith('ar');
     const { userData, logout } = useContext(AuthContext);
     console.log("Navbar userData:", userData);
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+
+    const handleLanguageChange = () => {
+        const nextLang = i18n.language.startsWith('ar') ? 'en' : 'ar';
+        i18n.changeLanguage(nextLang);
+    };
 
     const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -43,6 +53,7 @@ export default function Navbar() {
                 px: 3,
                 border: "1px solid #F1F5F9",
                 boxSizing: "border-box",
+            
             }}
         >
 
@@ -64,9 +75,9 @@ export default function Navbar() {
                     },
                 }}
             >
-                <SearchIcon sx={{ color: "#1F263E", mr: 1.2, fontSize: "20px" }} />
+                <SearchIcon sx={{ color: "#1F263E", mr: isRtl ? 0 : 1.2, ml: isRtl ? 1.2 : 0, fontSize: "20px" }} />
                 <InputBase
-                    placeholder="Search Here"
+                    placeholder={t('searchHere')}
                     sx={{
                         fontFamily: "Poppins",
                         fontSize: "14px",
@@ -129,6 +140,26 @@ export default function Navbar() {
 
                 <Divider orientation="vertical" flexItem sx={{ my: 1.5, borderColor: "#E2E8F0" }} />
 
+                <Button
+                    onClick={handleLanguageChange}
+                    sx={{
+                        fontFamily: "Poppins",
+                        fontSize: "14px",
+                        fontWeight: 600,
+                        color: "#203FC7",
+                        textTransform: "uppercase",
+                        minWidth: "auto",
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: "8px",
+                        bgcolor: "rgba(32, 63, 199, 0.08)",
+                        "&:hover": {
+                            bgcolor: "rgba(32, 63, 199, 0.15)",
+                        }
+                    }}
+                >
+                    {i18n.language.startsWith('ar') ? 'EN' : 'AR'}
+                </Button>
 
                 <IconButton
                     sx={{
@@ -192,17 +223,17 @@ export default function Navbar() {
                             },
                         },
                     }}
-                    transformOrigin={{ horizontal: "right", vertical: "top" }}
-                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                    transformOrigin={{ horizontal: isRtl ? "left" : "right", vertical: "top" }}
+                    anchorOrigin={{ horizontal: isRtl ? "left" : "right", vertical: "bottom" }}
                 >
                     <MenuItem onClick={handleCloseMenu}>
                         <PersonOutlinedIcon sx={{ fontSize: "18px", color: "#8A92A6" }} />
-                        Profile
+                        {t('profile')}
                     </MenuItem>
                     <Divider sx={{ my: "4px !important", borderColor: "#F1F5F9" }} />
                     <MenuItem onClick={handleLogout} sx={{ color: "#EA5455 !important" }}>
                         <LogoutIcon sx={{ fontSize: "18px", color: "#EA5455" }} />
-                        Logout
+                        {t('Logout')}
                     </MenuItem>
                 </Menu>
             </Box>
