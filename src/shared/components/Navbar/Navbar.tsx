@@ -60,6 +60,12 @@ export default function Navbar() {
     handleCloseMenu();
   };
 
+  
+  const handleGoToProfile = () => {
+    handleCloseMenu();
+    navigate("/dashboard/profile"); 
+  };
+
   return (
     <>
       <Box
@@ -96,7 +102,6 @@ export default function Navbar() {
               fontSize: 20,
             }}
           />
-
           <InputBase
             placeholder={t("searchHere")}
             sx={{
@@ -112,7 +117,7 @@ export default function Navbar() {
 
         {/* RIGHT SIDE */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {/* PROFILE */}
+          {/* PROFILE TRIGGER */}
           <Box
             onClick={handleOpenMenu}
             sx={{
@@ -128,11 +133,9 @@ export default function Navbar() {
               src={avatar}
               sx={{ width: 38, height: 38, border: "2px solid #E2E5EB" }}
             />
-
             <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
               {userData?.userName || "Upskilling"}
             </Typography>
-
             <KeyboardArrowDownIcon sx={{ fontSize: 18, color: "#8A92A6" }} />
           </Box>
 
@@ -154,20 +157,15 @@ export default function Navbar() {
             <Badge
               variant="dot"
               color="error"
-              sx={{
-                "& .MuiBadge-badge": {
-                  width: 8,
-                  height: 8,
-                },
-              }}
+              sx={{ "& .MuiBadge-badge": { width: 8, height: 8 } }}
             >
               <NotificationsNoneOutlinedIcon />
             </Badge>
           </IconButton>
         </Box>
 
-        {/* MENU */}
-        <Menu
+        {/* DROPDOWN MENU */}
+         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleCloseMenu}
@@ -180,16 +178,17 @@ export default function Navbar() {
             vertical: "bottom",
           }}
         >
-          <MenuItem onClick={handleCloseMenu}>
-            <PersonOutlinedIcon sx={{ fontSize: 18, mr: 1 }} />
-            {t("profile")}
+          
+          <MenuItem onClick={handleGoToProfile}>
+            <PersonOutlinedIcon sx={{ fontSize: 18, mr: 1, color: "#1976d2" }} />
+            <Typography sx={{ fontSize: 14 }}>{t("profile")}</Typography>
           </MenuItem>
 
           <Divider />
 
           <MenuItem onClick={handleOpenLogoutDialog} sx={{ color: "#EA5455" }}>
             <LogoutIcon sx={{ fontSize: 18, mr: 1 }} />
-            {t("logout")}
+            <Typography sx={{ fontSize: 14 }}>{t("logout")}</Typography>
           </MenuItem>
         </Menu>
       </Box>

@@ -19,6 +19,7 @@ import RoomDetails from "../pages/Admin/Rooms/RoomDetails";
 import EditRoom from "../pages/Admin/Rooms/EditRoom";
 import AdsList from "../pages/Admin/Ads/AdsList/AdsList";
 import Booking from "../pages/Admin/Booking/Booking";
+import ProfilePage from "../pages/Admin/ProfilePage/Profilepage";
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,7 @@ const router = createBrowserRouter([
       { path: "rooms", element: <Test/> },
       { path: "ads", element: <AdsList/> },
       { path: "bookings", element: <Booking/> },
+      { path: "profile", element: <ProfilePage /> },
     ],
   },
    {
