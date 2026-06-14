@@ -11,7 +11,6 @@ import avatar from "../../../assets/avatar.png";
 
 export default function Navbar() {
     const { userData, logout } = useContext(AuthContext);
-    console.log("Navbar userData:", userData);
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -102,7 +101,13 @@ export default function Navbar() {
                     }}
                 >
                     <Avatar
-                        src={avatar}
+                        src={
+                            userData?.profileImage 
+                                ? (userData.profileImage.startsWith("http") 
+                                    ? userData.profileImage 
+                                    : `https://upskilling-egypt.com:3000/${userData.profileImage}`) 
+                                : avatar
+                        }
                         alt="Profile Avatar"
                         sx={{
                             width: 38,
