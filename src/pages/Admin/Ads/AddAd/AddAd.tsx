@@ -12,9 +12,11 @@ import {
   InputLabel,
   TextField,
   CircularProgress,
+  FormHelperText,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import axiosClient from "../../../../services/api/axiosClient";
 import { toast } from "react-toastify";
 
@@ -40,15 +42,41 @@ interface AddAdProps {
   adData?: Ad | null;
 }
 
-export default function AddAd({ open, onClose, onSuccess, adData }: AddAdProps) {
+interface FormValues {
+  roomId: string;
+  discount: number | "";
+  isActive: boolean;
+}
+
+export default function AddAd({
+  open,
+  onClose,
+  onSuccess,
+  adData,
+}: AddAdProps) {
   const isEdit = !!adData;
 
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [roomId, setRoomId] = useState("");
-  const [isActive, setIsActive] = useState<boolean>(true);
-  const [discount, setDiscount] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
   const [roomsLoading, setRoomsLoading] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    register,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      roomId: "",
+      discount: "",
+      isActive: true,
+    },
+  });
+
+  const getRoomNumber = (id: string) => {
+    return rooms.find((r) => r._id === id)?.roomNumber || id;
+  };
 
   const fetchRooms = async () => {
     try {
@@ -62,54 +90,45 @@ export default function AddAd({ open, onClose, onSuccess, adData }: AddAdProps) 
     }
   };
 
-  const getRoomNumber = (id: string) => {
-    return rooms.find((r) => r._id === id)?.roomNumber || id;
-  };
-
   useEffect(() => {
     if (open) {
+      console.log("adData:", adData);
       fetchRooms();
       if (isEdit && adData) {
-        setRoomId(adData.room._id);
-        setIsActive(adData.isActive);
-        setDiscount(adData.discount);
+        reset({
+          roomId: adData.room._id,
+          discount: adData.discount,
+          isActive: adData.isActive,
+        });
       } else {
-        setRoomId("");
-        setIsActive(true);
-        setDiscount("");
+        reset({
+          roomId: "",
+          discount: "",
+          isActive: true,
+        });
       }
     }
-  }, [open]);
+  }, [open, adData, isEdit, reset]);
 
   const handleClose = () => {
-    setRoomId("");
-    setIsActive(true);
-    setDiscount("");
+    reset({ roomId: "", discount: "", isActive: true });
     onClose();
   };
 
-  const handleSubmit = async () => {
-    if (!isEdit && !roomId) {
-      toast.error("Please select a room");
-      return;
-    }
-    if (discount === "") {
-      toast.error("Please enter a discount");
-      return;
-    }
+  const onSubmit = async (data: FormValues) => {
     try {
       setLoading(true);
-      if (isEdit) {
+      if (isEdit && adData) {
         await axiosClient.put(`/admin/ads/${adData._id}`, {
-          isActive,
-          discount: Number(discount),
+          isActive: data.isActive,
+          discount: Number(data.discount),
         });
         toast.success("Ad updated successfully");
       } else {
         await axiosClient.post("/admin/ads", {
-          room: roomId,
-          isActive,
-          discount: Number(discount),
+          room: data.roomId,
+          isActive: data.isActive,
+          discount: Number(data.discount),
         });
         toast.success("Ad added successfully");
       }
@@ -121,7 +140,10 @@ export default function AddAd({ open, onClose, onSuccess, adData }: AddAdProps) 
         /([a-f0-9]{24})/g,
         (match: string) => getRoomNumber(match)
       );
-      toast.error(formattedMessage || (isEdit ? "Failed to update ad" : "Failed to add ad"));
+      toast.error(
+        formattedMessage ||
+          (isEdit ? "Failed to update ad" : "Failed to add ad")
+      );
     } finally {
       setLoading(false);
     }
@@ -163,52 +185,83 @@ export default function AddAd({ open, onClose, onSuccess, adData }: AddAdProps) 
       <DialogContent
         sx={{ px: 3, pt: 2, display: "flex", flexDirection: "column", gap: 2 }}
       >
-        <FormControl fullWidth>
-          <InputLabel>Room Name</InputLabel>
-          <Select
-            value={roomId}
-            label="Room Name"
-            onChange={(e) => setRoomId(e.target.value)}
-            disabled={roomsLoading || isEdit}
-            endAdornment={
-              roomsLoading ? <CircularProgress size={16} sx={{ mr: 2 }} /> : null
-            }
-          >
-            {rooms.map((room) => (
-              <MenuItem key={room._id} value={room._id}>
-                {room.roomNumber}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {/* Room Select */}
+        <Controller
+          name="roomId"
+          control={control}
+          rules={{ required: isEdit ? false : "Please select a room" }}
+          render={({ field }) => (
+            <FormControl fullWidth error={!!errors.roomId}>
+              <InputLabel>Room Name</InputLabel>
+              <Select
+                {...field}
+                label="Room Name"
+                disabled={roomsLoading || isEdit}
+                endAdornment={
+                  roomsLoading ? (
+                    <CircularProgress size={16} sx={{ mr: 2 }} />
+                  ) : null
+                }
+              >
+                {isEdit &&
+                  adData &&
+                  !rooms.find((r) => r._id === adData.room._id) && (
+                    <MenuItem value={adData.room._id}>
+                      {adData.room.roomNumber}
+                    </MenuItem>
+                  )}
+                {rooms.map((room) => (
+                  <MenuItem key={room._id} value={room._id}>
+                    {room.roomNumber}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.roomId && (
+                <FormHelperText>{errors.roomId.message}</FormHelperText>
+              )}
+            </FormControl>
+          )}
+        />
 
+        {/* Discount */}
         <TextField
           label="Discount"
           type="number"
           fullWidth
-          value={discount}
-          onChange={(e) =>
-            setDiscount(e.target.value === "" ? "" : Number(e.target.value))
-          }
+          error={!!errors.discount}
+          helperText={errors.discount?.message}
+          {...register("discount", {
+            required: "Please enter a discount",
+            min: { value: 0, message: "Discount can't be less than 0" },
+            max: { value: 100, message: "Discount can't exceed 100" },
+            valueAsNumber: true,
+          })}
           slotProps={{ htmlInput: { min: 0, max: 100 } }}
         />
 
-        <FormControl fullWidth>
-          <InputLabel>Active</InputLabel>
-          <Select
-            value={isActive ? "true" : "false"}
-            label="Active"
-            onChange={(e) => setIsActive(e.target.value === "true")}
-          >
-            <MenuItem value="true">Active</MenuItem>
-            <MenuItem value="false">Inactive</MenuItem>
-          </Select>
-        </FormControl>
+        {/* Active */}
+        <Controller
+          name="isActive"
+          control={control}
+          render={({ field }) => (
+            <FormControl fullWidth>
+              <InputLabel>Status</InputLabel>
+              <Select
+                label="Active"
+                value={field.value ? "true" : "false"}
+                onChange={(e) => field.onChange(e.target.value === "true")}
+              >
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+          )}
+        />
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 3, justifyContent: "flex-end" }}>
         <Button
-          onClick={handleSubmit}
+          onClick={handleSubmit(onSubmit)}
           variant="contained"
           disabled={loading}
           sx={{
