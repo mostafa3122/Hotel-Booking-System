@@ -1,16 +1,18 @@
+import { useState } from "react";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../../shared/components/Navbar/Navbar";
 import Sidebar from "../../shared/components/Sidebar/Sidebar";
 
 export default function MasterLayout() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "green" }}>
-      <Sidebar />
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#F8F9FB" }}>
+      <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
       <Box
         sx={{
           flexGrow: 1,
-          ml: { xs: "70px", sm: "85px" },
           p: { xs: 2, sm: 3, md: 4 },
           display: "flex",
           flexDirection: "column",
@@ -20,7 +22,7 @@ export default function MasterLayout() {
         }}
       >
         <Navbar />
-        <Box component="main" sx={{ flexGrow: 1, minWidth: 0, width: '100%', overflow: 'hidden' }}>
+        <Box component="main" sx={{ flexGrow: 1, minWidth: 0, width: "100%", overflow: "hidden" }}>
           <Outlet />
         </Box>
       </Box>
