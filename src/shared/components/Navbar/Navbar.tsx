@@ -18,26 +18,6 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import { AuthContext } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import avatar from "../../../assets/avatar.png";
-import { useTranslation } from 'react-i18next';
-import { Button } from '@mui/material';
-
-export default function Navbar() {
-      const { t, i18n } = useTranslation();
-    const isRtl = i18n.language.startsWith('ar');
-    const { userData, logout } = useContext(AuthContext);
-    console.log("Navbar userData:", userData);
-    const navigate = useNavigate();
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-
-    const handleLanguageChange = () => {
-        const nextLang = i18n.language.startsWith('ar') ? 'en' : 'ar';
-        i18n.changeLanguage(nextLang);
-    };
-
-    const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
 import ConfirmationDialog from "../ConfirmationDialog/ConfirmationDialog";
 import logoutImg from "../../../assets/logout.png";
 export default function Navbar() {
@@ -144,18 +124,6 @@ export default function Navbar() {
             src={avatar}
             alt="Profile Avatar"
             sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-                height: "72px",
-                bgcolor: "#F8F9FB",
-                borderRadius: "16px",
-                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.03)",
-                px: 3,
-                border: "1px solid #F1F5F9",
-                boxSizing: "border-box",
-            
               width: 38,
               height: 38,
               border: "2px solid #E2E5EB",
@@ -171,91 +139,6 @@ export default function Navbar() {
                 lineHeight: 1.2,
               }}
             >
-                <SearchIcon sx={{ color: "#1F263E", mr: isRtl ? 0 : 1.2, ml: isRtl ? 1.2 : 0, fontSize: "20px" }} />
-                <InputBase
-                    placeholder={t('searchHere')}
-                    sx={{
-                        fontFamily: "Poppins",
-                        fontSize: "14px",
-                        color: "#1F263E",
-                        width: "100%",
-                        "& .MuiInputBase-input": {
-                            padding: 0,
-                            "&::placeholder": {
-                                color: "#8A92A6",
-                                opacity: 1,
-                            },
-                        },
-                    }}
-                />
-            </Box>
-
-
-            <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1.5, sm: 2.5 } }}>
-
-                <Box
-                    onClick={handleOpenMenu}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 1.2,
-                        cursor: "pointer",
-                        p: 0.5,
-                        borderRadius: "30px",
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                            bgcolor: "#F8F9FB",
-                        },
-                    }}
-                >
-                    <Avatar
-                        src={avatar}
-                        alt="Profile Avatar"
-                        sx={{
-                            width: 38,
-                            height: 38,
-                            border: "2px solid #E2E5EB",
-                        }}
-                    />
-                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                        <Typography
-                            sx={{
-                                fontFamily: "Poppins",
-                                fontSize: "14px",
-                                fontWeight: 500,
-                                color: "#1F263E",
-                                lineHeight: 1.2,
-                            }}
-                        >
-                            {userData?.userName  || "Upskilling"}
-                        </Typography>
-                    </Box>
-                    <KeyboardArrowDownIcon sx={{ color: "#8A92A6", fontSize: "18px" }} />
-                </Box>
-
-
-                <Divider orientation="vertical" flexItem sx={{ my: 1.5, borderColor: "#E2E8F0" }} />
-
-                <Button
-                    onClick={handleLanguageChange}
-                    sx={{
-                        fontFamily: "Poppins",
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        color: "#203FC7",
-                        textTransform: "uppercase",
-                        minWidth: "auto",
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: "8px",
-                        bgcolor: "rgba(32, 63, 199, 0.08)",
-                        "&:hover": {
-                            bgcolor: "rgba(32, 63, 199, 0.15)",
-                        }
-                    }}
-                >
-                    {i18n.language.startsWith('ar') ? 'EN' : 'AR'}
-                </Button>
               {userData?.userName || "Upskilling"}
             </Typography>
           </Box>
@@ -347,55 +230,6 @@ export default function Navbar() {
         </Menu>
       </Box>
 
-                <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleCloseMenu}
-                    slotProps={{
-                        paper: {
-                            elevation: 0,
-                            sx: {
-                                overflow: "visible",
-                                filter: "drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.08))",
-                                borderRadius: "12px",
-                                mt: 1.5,
-                                border: "1px solid #F1F5F9",
-                                minWidth: "160px",
-                                "& .MuiList-root": {
-                                    py: 0.5,
-                                },
-                                "& .MuiMenuItem-root": {
-                                    fontFamily: "Poppins",
-                                    fontSize: "14px",
-                                    fontWeight: "400",
-                                    color: "#1F263E",
-                                    py: 1,
-                                    px: 2,
-                                    gap: 1.5,
-                                    "&:hover": {
-                                        backgroundColor: "#F8FAFC",
-                                    },
-                                },
-                            },
-                        },
-                    }}
-                    transformOrigin={{ horizontal: isRtl ? "left" : "right", vertical: "top" }}
-                    anchorOrigin={{ horizontal: isRtl ? "left" : "right", vertical: "bottom" }}
-                >
-                    <MenuItem onClick={handleCloseMenu}>
-                        <PersonOutlinedIcon sx={{ fontSize: "18px", color: "#8A92A6" }} />
-                        {t('profile')}
-                    </MenuItem>
-                    <Divider sx={{ my: "4px !important", borderColor: "#F1F5F9" }} />
-                    <MenuItem onClick={handleLogout} sx={{ color: "#EA5455 !important" }}>
-                        <LogoutIcon sx={{ fontSize: "18px", color: "#EA5455" }} />
-                        {t('Logout')}
-                    </MenuItem>
-                </Menu>
-            </Box>
-        </Box>
-    );
-}
       <ConfirmationDialog
         open={openLogout}
         onClose={() => setOpenLogoutDialog(false)}
