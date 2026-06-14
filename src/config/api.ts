@@ -6,4 +6,6 @@ export const API_ENDPOINTS = {
   FORGOT_PASSWORD: "portal/users/forgot-password",
   RESET_PASSWORD: "portal/users/reset-password",
   CHANGE_PASSWORD: "portal/users/change-password",
+  DASHBOARD: "admin/dashboard",
 };
+
