@@ -10,22 +10,19 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
+
 import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 
-
+// Icons
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CustomTable from "../../../shared/components/CustomTable/CustomTable";
+
 
 // Shared table
 
+import ConfirmationDialog from "../../../shared/components/ConfirmationDialog/ConfirmationDialog";
+import CustomTable from "../../../shared/components/CustomTable/CustomTable";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Facility {
@@ -44,10 +41,10 @@ interface Room {
   createdBy: { _id: string; userName: string };
 }
 
-
+// ── Constants ─────────────────────────────────────────────────────────────────
 const PAGE_SIZE = 10;
 
-
+// ── Shared TextField sx ───────────────────────────────────────────────────────
 const inputSx = {
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
@@ -57,74 +54,6 @@ const inputSx = {
     "&.Mui-focused fieldset": { borderColor: "#2563eb" },
   },
 };
-
-
-function DeleteDialog({
-  room,
-  open,
-  onClose,
-  onConfirm,
-  isDeleting,
-}: {
-  room: Room | null;
-  open: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  isDeleting: boolean;
-}) {
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      
-      slotProps={{ paper: { sx: { borderRadius: 3, maxWidth: 400, width: "100%" } } }}
-    >
-      <DialogTitle sx={{ textAlign: "center", pt: 4, pb: 1 }}>
-        <Box
-          sx={{
-            width: 52, height: 52, borderRadius: "50%", bgcolor: "#fee2e2",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            mx: "auto", mb: 2,
-          }}
-        >
-          <DeleteIcon sx={{ color: "#ef4444" }} />
-        </Box>
-        {/* ✅ fontSize via sx, not as a direct prop */}
-        <Typography variant="h6" color="text.primary" sx={{ fontWeight: 600 }}>
-          Delete Room
-        </Typography>
-      </DialogTitle>
-
-      <DialogContent sx={{ textAlign: "center", color: "text.secondary", pb: 1 }}>
-        <Typography variant="body2">
-          Are you sure you want to delete{" "}
-          <Box component="strong">Room {room?.roomNumber}</Box>? This action cannot be undone.
-        </Typography>
-      </DialogContent>
-
-      <DialogActions sx={{ px: 3, pb: 3, gap: 1.5 }}>
-        <Button
-          onClick={onClose}
-          fullWidth
-          variant="outlined"
-          sx={{ borderRadius: 2, textTransform: "none", borderColor: "#e5e7eb", color: "text.secondary" }}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={onConfirm}
-          fullWidth
-          variant="contained"
-          disabled={isDeleting}
-          sx={{ borderRadius: 2, textTransform: "none", bgcolor: "#ef4444", "&:hover": { bgcolor: "#dc2626" } }}
-          startIcon={isDeleting ? <CircularProgress size={14} color="inherit" /> : null}
-        >
-          {isDeleting ? "Deleting…" : "Delete"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
 
 // ── Column definitions ────────────────────────────────────────────────────────
 function buildColumns(): GridColDef[] {
@@ -333,7 +262,7 @@ const Rooms = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           sx={{ ...inputSx, maxWidth: 340, width: "100%" }}
-          
+          // ✅ slotProps instead of InputProps (MUI v6)
           slotProps={{
             input: {
               startAdornment: (
@@ -346,7 +275,7 @@ const Rooms = () => {
         />
       </Box>
 
-     
+      {/* ✅ CustomTable replaces the hand-rolled Table + pagination */}
       <CustomTable
         rows={filtered}
         columns={columns}
@@ -362,12 +291,15 @@ const Rooms = () => {
       />
 
       {/* Delete Modal */}
-      <DeleteDialog
-        room={deleteTarget}
+      <ConfirmationDialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        isDeleting={isDeleting}
+        loading={isDeleting}
+        title="Delete Room"
+        message={`Are you sure you want to delete Room ${deleteTarget?.roomNumber}? This action cannot be undone.`}
+        confirmText="Delete"
+        loadingText="Deleting…"
       />
     </Box>
   );

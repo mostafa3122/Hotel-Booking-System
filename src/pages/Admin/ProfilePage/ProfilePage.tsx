@@ -15,7 +15,6 @@ import SvgIcon from "@mui/material/SvgIcon";
 import type { SvgIconProps } from "@mui/material";
 import { AuthContext } from "../../../context/AuthContext";
 import axiosClient from "../../../services/api/axiosClient";
-import { API_BASE_URL } from "../../../config/api";
 
 
 const EmailIcon    = (p: SvgIconProps) => <SvgIcon {...p}><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></SvgIcon>;
@@ -44,7 +43,7 @@ interface UserProfile {
 // ─── Info Row ─────────────────────────────────────────────────────────────────
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
-    <Stack direction="row"  spacing={1.5} sx={{ py: 1.5 ,alignItems: "center" }}>
+    <Stack direction="row" spacing={1.5} sx={{ py: 1.5, alignItems: "center" }}>
       <Box sx={{
         width: 36, height: 36, borderRadius: 2, flexShrink: 0,
         bgcolor: "rgba(25,118,210,0.08)",
@@ -53,11 +52,11 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
         {icon}
       </Box>
       <Box>
-        <Typography variant="caption" 
-          sx={{ textTransform: "uppercase",display: "block", letterSpacing: .5, color: "text.secondary", lineHeight: 1.2 , fontWeight: 600 }}>
+        <Typography variant="caption"
+          sx={{ textTransform: "uppercase", display: "block", letterSpacing: .5, color: "text.secondary", lineHeight: 1.2, fontWeight: 600 }}>
           {label}
         </Typography>
-        <Typography variant="body2"  color="text.primary" sx={{  fontWeight: 500 }}>
+        <Typography variant="body2" color="text.primary" sx={{ fontWeight: 500 }}>
           {value}
         </Typography>
       </Box>
@@ -69,7 +68,7 @@ function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string;
 function StatCard({ num, label }: { num: number | string; label: string }) {
   return (
     <Box sx={{ bgcolor: "#F8F9FB", borderRadius: 2, p: 2, textAlign: "center", flex: 1 }}>
-      <Typography variant="h5"  color="text.primary" sx={{ fontWeight: 600 }}>
+      <Typography variant="h5" color="text.primary" sx={{ fontWeight: 600 }}>
         {num}
       </Typography>
       <Typography variant="caption" color="text.secondary">
@@ -104,7 +103,15 @@ export default function ProfilePage() {
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-  const imageUrl = profile?.profileImage ? `${API_BASE_URL}/${profile.profileImage}` : undefined;
+  // Use profileImage from API response — Cloudinary URLs work fine cross-origin
+  // Relative paths (old uploads) are blocked by server CORS, so we show initial as fallback
+  const imageUrl = profile?.profileImage
+    ? (profile.profileImage.startsWith("http")
+        ? profile.profileImage
+        : undefined)
+    : undefined;
+
+  const initial = (profile?.userName ?? "?").charAt(0).toUpperCase();
 
   if (loading) return (
     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
@@ -139,14 +146,15 @@ export default function ProfilePage() {
           <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", mt: "-40px", mb: 1.5 }}>
             <Avatar
               src={imageUrl}
+              alt={profile.userName}
               sx={{
                 width: 80, height: 80,
                 border: "3px solid white",
                 bgcolor: "#0C447C",
-                fontSize: 28, fontWeight: 600, color: "#B5D4F4",
+                fontSize: 32, fontWeight: 700, color: "#fff",
               }}
             >
-              {profile.userName.charAt(0).toUpperCase()}
+              {initial}
             </Avatar>
 
             {/* Badges */}
@@ -170,25 +178,25 @@ export default function ProfilePage() {
             </Stack>
           </Box>
 
-          <Typography variant="h6" sx={{ fontWeight: 600 , lineHeight: 1.2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
             {profile.userName}
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{mt:3}}>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
             Member since {formatDate(profile.createdAt)}
           </Typography>
         </Box>
       </Card>
 
       {/* ── Stat row ── */}
-      <Stack direction="row" spacing={1.5}  sx={{mb:2}}>
+      <Stack direction="row" spacing={1.5} sx={{ mb: 2 }}>
         <StatCard num={24} label="Bookings" />
         <StatCard num={6}  label="Rooms" />
         <StatCard num={3}  label="Ads" />
       </Stack>
 
       {/* ── Details card ── */}
-      <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid #F1F5F9", px: 3, py: 2 , mt:3 }}>
-        <Typography variant="overline" color="text.secondary"  sx={{ letterSpacing: .8 , fontWeight: 600 }}>
+      <Card elevation={0} sx={{ borderRadius: 3, border: "1px solid #F1F5F9", px: 3, py: 2, mt: 3 }}>
+        <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: .8, fontWeight: 600 }}>
           Contact & account info
         </Typography>
 
@@ -197,7 +205,7 @@ export default function ProfilePage() {
         <Box sx={{ border: "1px solid #F1F5F9", borderRadius: 2, overflow: "hidden", width: "100%" }}>
           <Grid container columns={12} spacing={0} sx={{ width: "100%", m: 0 }}>
             {/* Left */}
-            <Grid   size={{ xs: 12, sm: 6 }} sx={{ px: 2 }}>
+            <Grid size={{ xs: 12, sm: 6 }} sx={{ px: 2 }}>
               <InfoRow icon={<EmailIcon fontSize="small" />}   label="Email"   value={profile.email} />
               <Divider sx={{ opacity: .5 }} />
               <InfoRow icon={<PhoneIcon fontSize="small" />}   label="Phone"   value={profile.phoneNumber} />
@@ -206,7 +214,7 @@ export default function ProfilePage() {
             </Grid>
 
             {/* Right */}
-            <Grid  size={{ xs: 12, sm: 6 }} sx={{ px: 2, borderLeft: { sm: "1px solid #F1F5F9" }, borderTop: { xs: "1px solid #F1F5F9", sm: "none" } }}>
+            <Grid size={{ xs: 12, sm: 6 }} sx={{ px: 2, borderLeft: { sm: "1px solid #F1F5F9" }, borderTop: { xs: "1px solid #F1F5F9", sm: "none" } }}>
               <InfoRow
                 icon={<BadgeIcon fontSize="small" />}
                 label="User ID"

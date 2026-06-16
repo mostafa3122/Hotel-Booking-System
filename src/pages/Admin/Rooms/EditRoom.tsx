@@ -1,7 +1,5 @@
 import CircularProgress from "@mui/material/CircularProgress";
 import Autocomplete from "@mui/material/Autocomplete";
-import type { AutocompleteRenderGetTagProps } from "@mui/material";
-import Chip from "@mui/material/Chip";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import axiosClient from "../../../services/api/axiosClient";
@@ -16,6 +14,7 @@ import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
+import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 import Skeleton from "@mui/material/Skeleton";
 
@@ -107,7 +106,7 @@ function ImageUploadZone({
           onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }}
         />
         <CloudUploadIcon sx={{ fontSize: 38, color: "#22c55e" }} />
-        <Typography variant="body2" color="text.secondary" sx={{ textAlign: "center" }}>
+        <Typography variant="body2" color="text.secondary" sx={{textAlign: "center"}}>
           Drag & Drop or{" "}
           <Box component="span" sx={{ color: "#2563eb", fontWeight: 600 }}>
             Choose images
@@ -316,9 +315,7 @@ const EditRoom = () => {
             <ArrowBackIcon fontSize="small" />
           </IconButton>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "text.primary" }}>
-              Edit Room
-            </Typography>
+            <Typography variant="h6" color="text.primary" sx={{fontWeight:700}}>Edit Room</Typography>
             <Typography variant="body2" color="text.secondary">
               Update the details for room {form.roomNumber}
             </Typography>
@@ -361,14 +358,24 @@ const EditRoom = () => {
           />
 
           {/* Facilities */}
-            <Autocomplete<Facility, true, false, false>
+          <Autocomplete<Facility, true, false, false>
             multiple
             options={allFacilities}
-            getOptionLabel={(o) => o.name}
+            getOptionLabel={(option) => option.name}
             value={selectedFacilities}
-            onChange={(_, v) => setSelectedFacilities(v)}
+            onChange={(_, newValue) => setSelectedFacilities(newValue)}
             loading={loadingFacilities}
-            isOptionEqualToValue={(o, v) => o._id === v._id}
+            isOptionEqualToValue={(option, value) => option._id === value._id}
+            renderValue={(selected) =>
+              selected.map((option) => (
+                <Chip
+                  key={option._id}
+                  label={option.name}
+                  size="small"
+                  sx={{ bgcolor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", fontSize: 12, mr: 0.5 }}
+                />
+              ))
+            }
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -376,25 +383,8 @@ const EditRoom = () => {
                 placeholder={selectedFacilities.length === 0 ? "Select facilities…" : ""}
                 size="small"
                 sx={inputSx}
-                slotProps={{
-                  input: {
-                   ...(params as any).InputProps,
-                    endAdornment: (
-                      <>
-                        {loadingFacilities && <CircularProgress size={14} />}
-                        {(params as any).InputProps?.endAdornment}
-                      </>
-                    ),
-                  },
-                }}
               />
             )}
-            slotProps={{
-              chip: {
-                size: "small",
-                sx: { bgcolor: "#eff6ff", color: "#2563eb", border: "1px solid #bfdbfe", fontSize: 12 },
-              },
-            }}
           />
 
           {/* Images */}
