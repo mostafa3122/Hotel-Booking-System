@@ -6,6 +6,7 @@ import axiosClient from "../../../../services/api/axiosClient";
 import CustomTable from "../../../../shared/components/CustomTable/CustomTable";
 import Header from "../../../../shared/Header/Header";
 import { toast } from "react-toastify";
+import ViewModal from "../../../../shared/components/ViewModal/ViewModal";
 
 type User = {
   _id: string;
@@ -24,7 +25,8 @@ export default function UsersList() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
 
-
+const [viewOpen, setViewOpen] = useState(false);
+const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -66,7 +68,8 @@ export default function UsersList() {
   // ================= VIEW =================
 
   const handleView = (row: User) => {
-    console.log("User Details:", row);
+   setSelectedUser(row);
+   setViewOpen(true);
   };
 
  
@@ -157,6 +160,62 @@ export default function UsersList() {
     [],
   );
 
+  // ================= View =================
+  const viewRows = selectedUser
+    ? [
+        { label: "ID", value: selectedUser._id },
+
+        {
+          label: "Avatar",
+          value: (
+            <Avatar
+              src={selectedUser.profileImage}
+              sx={{ width: 50, height: 50, ml: "auto" }}
+            />
+          ),
+        },
+
+        { label: "User Name", value: selectedUser.userName },
+
+        { label: "Email", value: selectedUser.email },
+
+        { label: "Phone", value: selectedUser.phoneNumber },
+
+        { label: "Country", value: selectedUser.country },
+
+        {
+          label: "Role",
+          value: (
+            <Chip
+              label={selectedUser.role}
+              color={selectedUser.role === "admin" ? "error" : "primary"}
+              size="small"
+            />
+          ),
+        },
+
+        {
+          label: "Verified",
+          value: (
+            <Chip
+              label={selectedUser.verified ? "Verified" : "Not Verified"}
+              color={selectedUser.verified ? "success" : "warning"}
+              size="small"
+            />
+          ),
+        },
+
+        {
+          label: "Created At",
+          value: new Date(selectedUser.createdAt).toLocaleDateString("en-GB"),
+        },
+
+        {
+          label: "Updated At",
+          value: new Date(selectedUser.updatedAt).toLocaleDateString("en-GB"),
+        },
+      ]
+    : [];
   // ================= UI =================
 
   return (
@@ -174,8 +233,6 @@ export default function UsersList() {
         subtitle="You can check all users details"
       />
 
-      
-
       <CustomTable
         rows={users}
         columns={columns}
@@ -185,7 +242,12 @@ export default function UsersList() {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         onView={handleView}
-    
+      />
+      <ViewModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title="User Details"
+        rows={viewRows}
       />
     </Box>
   );

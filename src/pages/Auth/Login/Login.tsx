@@ -59,7 +59,7 @@ export default function Login() {
       }
       saveUserData();
       toast.success("Logged in successfully!");
-      navigate("/dashboard");
+     navigate(userRole === "admin" ? "/dashboard" : "/home");
     } catch (err: unknown) {
       let msg = "Something went wrong.";
       if (axios.isAxiosError(err)) {
@@ -97,7 +97,7 @@ export default function Login() {
         You can{' '}
         <Link
           component={RouterLink}
-          to={'/register'}
+          to={'/auth/register'}
           sx={{ color: '#152C5B', fontWeight: '600', textDecoration: 'none' }}
         >
           Register here!
@@ -160,7 +160,7 @@ export default function Login() {
 
         <Link
           component={RouterLink}
-          to="/forget-password"
+          to="/auth/forget-password"
           underline="hover"
           sx={{
             alignSelf: "flex-end",

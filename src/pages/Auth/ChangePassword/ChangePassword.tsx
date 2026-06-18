@@ -1,22 +1,32 @@
-import { Box, Link, Typography, TextField, Button, CircularProgress, Alert, InputAdornment, IconButton } from "@mui/material";
-import { useForm } from "react-hook-form";
-import { Link as RouterLink } from "react-router-dom";
-import { inputStyles } from "../../../shared/inputStyles";
-import { useState } from "react";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { inputStyles } from "../../../shared/inputStyles";
 
 import axios from "axios";
-import { changePassword, type ChangePasswordFormData } from "../../../services/api/users";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import {
+  changePassword,
+  type ChangePasswordFormData,
+} from "../../../services/api/users";
 export default function ChangePassword() {
   const [isLoading, setIsLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -27,7 +37,6 @@ export default function ChangePassword() {
   const onSubmit = async (data: ChangePasswordFormData) => {
     setIsLoading(true);
     setApiError(null);
-    setSuccessMsg(null);
 
     try {
       await changePassword({
@@ -37,7 +46,10 @@ export default function ChangePassword() {
       });
 
       localStorage.removeItem("token");
-      setSuccessMsg("Password changed successfully! you can login now");
+      toast.success("Password changed successfully!");
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (err: unknown) {
       let msg = "Something went wrong.";
       if (axios.isAxiosError(err)) {
@@ -52,15 +64,32 @@ export default function ChangePassword() {
   };
 
   const fieldLabel = (label: string) => (
-    <Typography sx={{ fontWeight: 400, color: "#152C5B", mb: -1, fontSize: "16px", lineHeight: "170%", fontFamily: "Poppins" }}>
+    <Typography
+      sx={{
+        fontWeight: 400,
+        color: "#152C5B",
+        mb: -1,
+        fontSize: "16px",
+        lineHeight: "170%",
+        fontFamily: "Poppins",
+      }}
+    >
       {label}
     </Typography>
   );
 
   return (
-    <Box sx={{ mt: { md: '3rem', xs: '2rem' }, ml: { md: '5rem', xs: '2rem' }, mr: { md: '5rem', xs: '2rem' } }}>
+    <Box
+      sx={{
+        mt: { md: "3rem", xs: "2rem" },
+        ml: { md: "5rem", xs: "2rem" },
+        mr: { md: "5rem", xs: "2rem" },
+      }}
+    >
       <Box sx={{ width: "100%", maxWidth: 430 }}>
-        <Typography sx={{ fontWeight: 500, color: "#000", fontSize: "30px", mb: 2 }}>
+        <Typography
+          sx={{ fontWeight: 500, color: "#000", fontSize: "30px", mb: 2 }}
+        >
           Change Password
         </Typography>
 
@@ -116,7 +145,11 @@ export default function ChangePassword() {
                       onClick={() => setShowPassword((p) => !p)}
                       edge="end"
                     >
-                      {showPassword ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+                      {showPassword ? (
+                        <Visibility fontSize="small" />
+                      ) : (
+                        <VisibilityOff fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -149,7 +182,11 @@ export default function ChangePassword() {
                       onClick={() => setShowConfirm((p) => !p)}
                       edge="end"
                     >
-                      {showConfirm ? <Visibility fontSize="small" /> : <VisibilityOff fontSize="small" />}
+                      {showConfirm ? (
+                        <Visibility fontSize="small" />
+                      ) : (
+                        <VisibilityOff fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -163,7 +200,6 @@ export default function ChangePassword() {
           />
 
           {apiError && <Alert severity="error">{apiError}</Alert>}
-          {successMsg && <Alert severity="success">{successMsg}</Alert>}
 
           <Button
             type="submit"
@@ -179,7 +215,9 @@ export default function ChangePassword() {
               borderRadius: "6px",
               "&:hover": { bgcolor: "#3252DF" },
             }}
-            startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : null}
+            startIcon={
+              isLoading ? <CircularProgress size={16} color="inherit" /> : null
+            }
           >
             {isLoading ? "Changing…" : "Change"}
           </Button>

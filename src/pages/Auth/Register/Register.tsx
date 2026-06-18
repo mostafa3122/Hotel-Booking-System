@@ -2,23 +2,26 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
-import Link from "@mui/material/Link";
+import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
+import Link from "@mui/material/Link";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-import axios from "axios";
+import { AxiosError } from "axios";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
 
-import axiosClient from "../../../services/api/axiosClient";
 import { API_ENDPOINTS } from "../../../config/api";
+import axiosClient from "../../../services/api/axiosClient";
+
+import CloseIcon from "@mui/icons-material/Close";
+import Avatar from "@mui/material/Avatar";
 
 interface RegisterFormData {
   userName: string;
@@ -41,6 +44,7 @@ export default function Register() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<RegisterFormData>();
 
@@ -69,18 +73,35 @@ export default function Register() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        },
+        }
       );
 
       toast.success(response.data.message || "Registration successful!");
-      navigate("/login");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      navigate("/auth/login");
+    } catch (error) {
+      const err = error as AxiosError<{ message: string }>;
+
+      toast.error(err.response?.data?.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const profileImageRegister = register("profileImage", {
+    required: "Profile Image is required",
+  });
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
 
+    if (!file) return;
+
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setValue("profileImage", {} as FileList);
+  };
   const fieldLabel = (label: string) => (
     <Typography
       sx={{ fontSize: "14px", fontWeight: 500, color: "#152C5B", mb: 0.5 }}
@@ -111,7 +132,13 @@ export default function Register() {
   };
 
   return (
-    <Box sx={{ mt: { md: '3rem', xs: '2rem' }, ml: { md: '5rem', xs: '2rem' }, mr: { md: '5rem', xs: '2rem' } }}>
+    <Box
+      sx={{
+        mt: { md: "3rem", xs: "2rem" },
+        ml: { md: "5rem", xs: "2rem" },
+        mr: { md: "5rem", xs: "2rem" },
+      }}
+    >
       <Box sx={{ width: "100%", maxWidth: 420 }}>
         <Typography
           variant="h4"
@@ -133,7 +160,7 @@ export default function Register() {
           You can{" "}
           <Link
             component={RouterLink}
-            to="/login"
+            to="/auth/login"
             underline="none"
             sx={{ color: "#FF498B", fontWeight: 600 }}
           >
@@ -142,6 +169,84 @@ export default function Register() {
         </Typography>
 
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          {/* Image  */}
+          <Box sx={{ textAlign: "center", mb: 2 }}>
+            {!imagePreview ? (
+              <>
+                <Button
+                  component="label"
+                  variant="outlined"
+                  sx={{
+                    borderStyle: "dashed",
+                    borderWidth: 2,
+                    py: 1.5,
+                    px: 3,
+                    borderRadius: 3,
+                    textTransform: "none",
+                  }}
+                >
+                  Upload Profile Image
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/*"
+                    {...profileImageRegister}
+                    onChange={(e) => {
+                      profileImageRegister.onChange(e);
+                      handleImageChange(e);
+                    }}
+                  />
+                </Button>
+              </>
+            ) : (
+              <Box
+                sx={{
+                  position: "relative",
+                  width: 120,
+                  mx: "auto",
+                }}
+              >
+                <Avatar
+                  src={imagePreview}
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    mx: "auto",
+                    border: "3px solid #3252DF",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  }}
+                />
+
+                <IconButton
+                  onClick={removeImage}
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    top: -5,
+                    right: -5,
+                    width: 28,
+                    height: 28,
+                    bgcolor: "#ff4d4f",
+                    color: "#fff",
+
+                    "&:hover": {
+                      bgcolor: "#d9363e",
+                    },
+                  }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            )}
+          </Box>
+          {errors.profileImage && (
+            <Typography
+              color="error"
+              sx={{ mt: 1, fontSize: 12, textAlign: "center" }}
+            >
+              {errors.profileImage.message}
+            </Typography>
+          )}
           {/* USERNAME */}
           <Box sx={{ mb: 1.5 }}>
             {fieldLabel("User Name")}
@@ -168,6 +273,10 @@ export default function Register() {
                 helperText={errors.phoneNumber?.message}
                 {...register("phoneNumber", {
                   required: "Phone Number is required",
+                  pattern: {
+                    value: /^01[0125][0-9]{8}$/,
+                    message: "Please enter a valid Egyptian phone number",
+                  },
                 })}
               />
             </Grid>
@@ -227,9 +336,7 @@ export default function Register() {
                             sx={{ fontSize: 18, color: "#B0B7C3" }}
                           />
                         ) : (
-                          <Visibility
-                            sx={{ fontSize: 18, color: "#B0B7C3" }}
-                          />
+                          <Visibility sx={{ fontSize: 18, color: "#B0B7C3" }} />
                         )}
                       </IconButton>
                     </InputAdornment>
@@ -238,9 +345,17 @@ export default function Register() {
               }}
               {...register("password", {
                 required: "Password is required",
+
                 minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
+                  value: 8,
+                  message: "Password must be at least 8 characters",
+                },
+
+                pattern: {
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$/,
+                  message:
+                    "Password must contain uppercase, lowercase, number and special character",
                 },
               })}
             />
@@ -269,9 +384,7 @@ export default function Register() {
                             sx={{ fontSize: 18, color: "#B0B7C3" }}
                           />
                         ) : (
-                          <Visibility
-                            sx={{ fontSize: 18, color: "#B0B7C3" }}
-                          />
+                          <Visibility sx={{ fontSize: 18, color: "#B0B7C3" }} />
                         )}
                       </IconButton>
                     </InputAdornment>
@@ -285,26 +398,11 @@ export default function Register() {
               })}
             />
           </Box>
-          <Box sx={{ mb: 1.5 }}>
-            {fieldLabel("Profile Image")}
 
-            <input
-              type="file"
-              accept="image/*"
-              {...register("profileImage", {
-                required: "Profile Image is required",
-              })}
-            />
-
-            {errors.profileImage && (
-              <Typography color="error" sx={{ fontSize: 12 }}>
-                {errors.profileImage.message}
-              </Typography>
-            )}
-          </Box>
           <Button
             type="submit"
             fullWidth
+            disabled={isLoading}
             variant="contained"
             sx={{
               mt: 2,
