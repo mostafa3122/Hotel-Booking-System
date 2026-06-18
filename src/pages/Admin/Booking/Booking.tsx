@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import axiosClient from "../../../services/api/axiosClient";
 import Header from "../../../shared/Header/Header";
 import CustomTable from "../../../shared/components/CustomTable/CustomTable";
+import ViewModal from "../../../shared/components/ViewModal/ViewModal";
+import ConfirmationDialog from "../../../shared/components/ConfirmationDialog/ConfirmationDialog";
 // import axiosClient from "../../../../services/api/axiosClient";
 // import Header from "../../../../shared/Header/Header";
 // import CustomTable from "../../../../shared/components/CustomTable/CustomTable";
@@ -31,7 +33,10 @@ export default function BookingsList() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -65,9 +70,33 @@ export default function BookingsList() {
   }, [paginationModel]);
 
   const handleView = (row: Booking) => {
-    console.log("Booking Details:", row);
+   setSelectedBooking(row);
+   setOpen(true);
   };
+const handleDelete = (row: Booking) => {
+  setSelectedBooking(row);
+  setDeleteOpen(true);
+};
+const confirmDelete = async () => {
+  if (!selectedBooking) return;
 
+  try {
+    setDeleteLoading(true);
+
+    await axiosClient.delete(`/admin/booking/${selectedBooking._id}`);
+
+    toast.success("Booking deleted successfully");
+
+    setDeleteOpen(false);
+    setSelectedBooking(null);
+
+    fetchBookings(paginationModel.page, paginationModel.pageSize);
+  } catch (error: any) {
+    toast.error(error?.response?.data?.message || "Failed to delete booking");
+  } finally {
+    setDeleteLoading(false);
+  }
+};
   const columns: GridColDef<Booking>[] = [
     {
       field: "roomNumber",
@@ -131,6 +160,47 @@ export default function BookingsList() {
     },
   ];
 
+  // view
+  const viewRows = selectedBooking
+    ? [
+        { label: "ID", value: selectedBooking._id },
+        { label: "Room Number", value: selectedBooking.room?.roomNumber },
+        { label: "User", value: selectedBooking.user?.userName },
+        {
+          label: "Status",
+          value: (
+            <Chip
+              label={selectedBooking.status}
+              size="small"
+              sx={{
+                background:
+                  selectedBooking.status === "pending" ? "#FFF3E0" : "#E8F5E9",
+                color:
+                  selectedBooking.status === "pending" ? "#E65100" : "#2E7D32",
+                fontWeight: 600,
+                fontSize: "0.78rem",
+              }}
+            />
+          ),
+        },
+        {
+          label: "Start Date",
+          value: new Date(selectedBooking.startDate).toLocaleDateString(),
+        },
+        {
+          label: "End Date",
+          value: new Date(selectedBooking.endDate).toLocaleDateString(),
+        },
+        {
+          label: "Total Price",
+          value: selectedBooking.totalPrice?.toLocaleString(),
+        },
+        {
+          label: "Created At",
+          value: new Date(selectedBooking.createdAt).toLocaleDateString(),
+        },
+      ]
+    : [];
   return (
     <Box>
       <Header
@@ -142,11 +212,26 @@ export default function BookingsList() {
         rows={bookings}
         columns={columns}
         onView={handleView}
+        onDelete={handleDelete}
         rowCount={totalCount}
         loading={loading}
         paginationMode="server"
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
+      />
+      <ViewModal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Booking Details"
+        rows={viewRows}
+      />
+      <ConfirmationDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={confirmDelete}
+        loading={deleteLoading}
+        title="Delete Booking"
+        message={`Are you sure you want to delete booking ${selectedBooking?.room?.roomNumber}?`}
       />
     </Box>
   );

@@ -38,7 +38,7 @@ export default function ForgetPassword() {
       );
 
       toast.success("Reset link sent! Please check your inbox.");
-      navigate("/reset-password");
+      navigate("/auth/reset-password");
     } catch (err: unknown) {
       const message =
         axios.isAxiosError(err)
@@ -61,7 +61,7 @@ export default function ForgetPassword() {
           If you already have an account register
           <br />
           You can{" "}
-          <Link component={RouterLink} to="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
+          <Link component={RouterLink} to="/auth/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
             Login here !
           </Link>
         </Typography>

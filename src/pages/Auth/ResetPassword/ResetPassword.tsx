@@ -1,23 +1,23 @@
+import axios from "axios";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import axios from "axios";
-import axiosClient from "../../../services/api/axiosClient";
 import { API_ENDPOINTS } from "../../../config/api";
+import axiosClient from "../../../services/api/axiosClient";
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Alert from "@mui/material/Alert";
-import CircularProgress from "@mui/material/CircularProgress";
-import Link from "@mui/material/Link";
-import IconButton from "@mui/material/IconButton";
-import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import { inputStyles } from "../../../shared/inputStyles";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Link from "@mui/material/Link";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { Link as RouterLink } from "react-router-dom";
 import { toast } from "react-toastify";
+import { inputStyles } from "../../../shared/inputStyles";
 
 import { useNavigate } from "react-router-dom";
 interface ResetPasswordFormData {
@@ -52,15 +52,12 @@ export default function ResetPassword() {
     setSuccessMsg(null);
 
     try {
-      await axiosClient.post(
-        API_ENDPOINTS.RESET_PASSWORD,
-        {
-          email: data.email,
-          password: data.password,
-          confirmPassword: data.confirmPassword,
-          seed: data.otp,
-        }
-      );
+      await axiosClient.post(API_ENDPOINTS.RESET_PASSWORD, {
+        email: data.email,
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+        seed: data.otp,
+      });
 
       setSuccessMsg("Password reset successfully! You can now login.");
       toast.success("Password reset successfully! You can now login.");
@@ -84,17 +81,34 @@ export default function ResetPassword() {
   );
 
   return (
-    <Box sx={{ mt: { md: '3rem', xs: '2rem' }, ml: { md: '5rem', xs: '2rem' }, mr: { md: '5rem', xs: '2rem' } }}>
+    <Box
+      sx={{
+        mt: { md: "3rem", xs: "2rem" },
+        ml: { md: "5rem", xs: "2rem" },
+        mr: { md: "5rem", xs: "2rem" },
+      }}
+    >
       <Box sx={{ maxWidth: 420 }}>
-        <Typography variant="h4" sx={{ color: "#000", fontWeight: 500, fontSize: "30px" }}>
+        <Typography
+          variant="h4"
+          sx={{ color: "#000", fontWeight: 500, fontSize: "30px" }}
+        >
           Reset Password
         </Typography>
 
-        <Typography variant="body2" sx={{ color: "#666", mb: 2, lineHeight: 1.7 }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "#666", mb: 2, lineHeight: 1.7 }}
+        >
           If you already have an account register
           <br />
           You can{" "}
-          <Link component={RouterLink} to="/login" underline="hover" sx={{ color: "#1a6ef5", fontWeight: 600 }}>
+          <Link
+            component={RouterLink}
+            to="/auth/login"
+            underline="hover"
+            sx={{ color: "#1a6ef5", fontWeight: 600 }}
+          >
             Login here !
           </Link>
         </Typography>
@@ -159,15 +173,30 @@ export default function ResetPassword() {
                       onClick={() => setShowPassword((p) => !p)}
                       edge="end"
                     >
-                      {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      {showPassword ? (
+                        <VisibilityOff fontSize="small" />
+                      ) : (
+                        <Visibility fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
               },
             }}
             {...register("password", {
-              required: "Password is required.",
-              minLength: { value: 6, message: "At least 6 characters." },
+              required: "Password is required",
+
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters",
+              },
+
+              pattern: {
+                value:
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$/,
+                message:
+                  "Password must contain uppercase, lowercase, number and special character",
+              },
             })}
           />
 
@@ -191,7 +220,11 @@ export default function ResetPassword() {
                       onClick={() => setShowConfirm((p) => !p)}
                       edge="end"
                     >
-                      {showConfirm ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      {showConfirm ? (
+                        <VisibilityOff fontSize="small" />
+                      ) : (
+                        <Visibility fontSize="small" />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -221,7 +254,9 @@ export default function ResetPassword() {
               borderRadius: "6px",
               "&:hover": { bgcolor: "#3252DF" },
             }}
-            startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : null}
+            startIcon={
+              isLoading ? <CircularProgress size={16} color="inherit" /> : null
+            }
           >
             {isLoading ? "Resetting…" : "Reset"}
           </Button>

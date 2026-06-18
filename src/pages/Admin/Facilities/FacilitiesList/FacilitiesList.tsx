@@ -7,6 +7,7 @@ import Header from "../../../../shared/Header/Header";
 import AddFacility from "../AddFacilityModal/AddFacility";
 import ConfirmationDialog from "../../../../shared/components/ConfirmationDialog/ConfirmationDialog";
 import { toast } from "react-toastify";
+import ViewModal from "../../../../shared/components/ViewModal/ViewModal";
 
 type Facility = {
   _id: string;
@@ -29,7 +30,8 @@ export default function FacilitiesList() {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
+const [viewOpen, setViewOpen] = useState(false);
+const [selectedView, setSelectedView] = useState<Facility | null>(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -104,7 +106,8 @@ export default function FacilitiesList() {
   };
 
   const handleView = (row: Facility) => {
-    console.log("View:", row);
+    setSelectedView(row);
+    setViewOpen(true);
   };
 
   // ================= COLUMNS =================
@@ -144,6 +147,32 @@ export default function FacilitiesList() {
     [],
   );
 
+  // ================= View =================
+  const viewRows = selectedView
+    ? [
+        { label: "ID", value: selectedView._id },
+
+        {
+          label: "Name",
+          value: selectedView.name,
+        },
+
+        {
+          label: "Created By",
+          value: selectedView.createdBy?.userName || "Unknown",
+        },
+
+        {
+          label: "Created At",
+          value: new Date(selectedView.createdAt).toLocaleDateString("en-GB"),
+        },
+
+        {
+          label: "Updated At",
+          value: new Date(selectedView.updatedAt).toLocaleDateString("en-GB"),
+        },
+      ]
+    : [];
   // ================= UI =================
   return (
     <Box
@@ -202,6 +231,12 @@ export default function FacilitiesList() {
         paginationMode="server"
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
+      />
+      <ViewModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title="Facility Details"
+        rows={viewRows}
       />
     </Box>
   );

@@ -194,12 +194,12 @@ export default function NotFound() {
             },
           }}
         >
-          Room not found
+          Page not found
         </Box>
 
         <Box
           sx={{
-            width: 180,
+            width: 210,
             height: 170,
             bgcolor: "#185FA5",
             borderRadius: "4px 4px 0 0",
@@ -350,7 +350,7 @@ export default function NotFound() {
           animation: `${fadeUp} 0.6s ease 0.5s both`,
         }}
       >
-        Room Not Found
+        Page Not Found
       </Typography>
 
       <Typography
@@ -365,7 +365,7 @@ export default function NotFound() {
           animation: `${fadeUp} 0.6s ease 0.7s both`,
         }}
       >
-        This page doesn't exist or the room has been removed.
+        This page doesn't exist or the page has been removed.
         <br />
         Go back or sign in to your account.
       </Typography>
@@ -394,7 +394,7 @@ export default function NotFound() {
         <Button
           variant="outlined"
           startIcon={<LoginIcon />}
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/auth/login")}
           sx={{
             textTransform: "none",
             fontWeight: 500,

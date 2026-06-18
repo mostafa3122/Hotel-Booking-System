@@ -7,6 +7,7 @@ import Header from "../../../../shared/Header/Header";
 import ConfirmationDialog from "../../../../shared/components/ConfirmationDialog/ConfirmationDialog";
 import CustomTable from "../../../../shared/components/CustomTable/CustomTable";
 import AddAd from "../AddAd/AddAd";
+import ViewModal from "../../../../shared/components/ViewModal/ViewModal";
 
 interface Ad {
   _id: string;
@@ -30,6 +31,8 @@ export default function AdsList() {
   const [ads, setAds] = useState<Ad[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [openView, setOpenView] = useState(false);
+  const [selectedAdView, setSelectedAdView] = useState<Ad | null>(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
@@ -67,7 +70,8 @@ export default function AdsList() {
   }, [paginationModel]);
 
   const handleView = (row: Ad) => {
-    console.log("View action clicked on row:", row);
+  setSelectedAdView(row);
+  setOpenView(true);
   };
 
   const handleEdit = (row: Ad) => {
@@ -146,6 +150,75 @@ export default function AdsList() {
       valueGetter: (_, row) => row.createdBy.userName,
     },
   ];
+
+  // view
+  const viewRows = selectedAdView
+    ? [
+        { label: "ID", value: selectedAdView._id },
+
+        {
+          label: "Room Number",
+          value: selectedAdView.room?.roomNumber,
+        },
+
+        {
+          label: "Images",
+          value: (
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              {selectedAdView.room?.images?.map((img, i) => (
+                <Box
+                  key={i}
+                  component="img"
+                  src={img}
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 1,
+                    objectFit: "cover",
+                  }}
+                />
+              ))}
+            </Box>
+          ),
+        },
+
+        {
+          label: "Price",
+          value: selectedAdView.room?.price?.toLocaleString(),
+        },
+
+        {
+          label: "Capacity",
+          value: selectedAdView.room?.capacity,
+        },
+
+        {
+          label: "Discount",
+          value: `${selectedAdView.room?.discount}%`,
+        },
+
+        {
+          label: "Status",
+          value: (
+            <Chip
+              label={selectedAdView.isActive ? "Active" : "Inactive"}
+              size="small"
+              color={selectedAdView.isActive ? "success" : "error"}
+            />
+          ),
+        },
+
+        {
+          label: "Created By",
+          value: selectedAdView.createdBy?.userName,
+        },
+
+        {
+          label: "Created At",
+          value: new Date(selectedAdView.createdAt).toLocaleDateString(),
+        },
+      ]
+    : [];
   return (
     <Box>
       <Header
@@ -187,6 +260,12 @@ export default function AdsList() {
           fetchAds(paginationModel.page, paginationModel.pageSize)
         }
         adData={selectedAd}
+      />
+      <ViewModal
+        open={openView}
+        onClose={() => setOpenView(false)}
+        title="Ad Details"
+        rows={viewRows}
       />
     </Box>
   );

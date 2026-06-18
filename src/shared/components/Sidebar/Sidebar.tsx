@@ -68,7 +68,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     {
       text: t("Change password"),
       icon: <LockOutlinedIcon />,
-      path: "/change-password",
+      path: "/auth/change-password",
     },
   ];
 
