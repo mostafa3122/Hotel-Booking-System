@@ -1,52 +1,99 @@
-
 import {
   Box,
   Card,
   Chip,
   Grid,
   Paper,
-  Typography
+  Typography,
+  Snackbar,
+  Alert,
 } from "@mui/material";
-import cardImage from "../../../assets/card.png";
-import PageHeader from "../../../shared/userSharedComponent/PageHeader/PageHeader";
+
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import axiosClient from "../../../services/api/axiosClient";
-interface Ad {
+import PageHeader from "../../../shared/userSharedComponent/PageHeader/PageHeader";
+import cardImage from "../../../assets/card.png";
+import axios from "axios";
+
+interface Room {
   _id: string;
-  isActive: boolean;
-  room: {
-    _id: string;
-    roomNumber: string;
-    price: number;
-    capacity: number;
-    discount: number;
-    images: string[];
-  };
+  roomNumber: string;
+  price: number;
+  capacity: number;
+  discount: number;
+  images: string[];
 }
+
 export default function Explore() {
+  const [searchParams] = useSearchParams();
 
-const [ads, setAds] = useState<Ad[]>([]);
+  const checkIn = searchParams.get("checkIn");
+  const checkOut = searchParams.get("checkOut");
+  const capacity = searchParams.get("capacity");
 
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // 🔥 Toast state
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    type: "success" as "success" | "error" | "info" | "warning",
+  });
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info" | "warning" = "success"
+  ) => {
+    setToast({
+      open: true,
+      message,
+      type,
+    });
+  };
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
 useEffect(() => {
-  getAds();
-}, []);
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
 
-const getAds = async () => {
-  try {
-    const response = await axiosClient.get("/portal/ads");
-    console.log(response.data);
+      const response = await axiosClient.get("/portal/rooms/available", {
+        params: {
+          startDate: checkIn,
+          endDate: checkOut,
+          capacity: capacity ? Number(capacity) : undefined,
+          page: 1,
+          size: 10,
+        },
+      });
 
-    setAds(response.data.data.ads);
-  } catch (error) {
-    console.log(error);
-  }
-};
-  const rooms = [
-    { id: 1, price: 2500, discount: 12, room: 207 },
-    { id: 2, price: 1800, discount: 10, room: 105 },
-    { id: 3, price: 3000, discount: 20, room: 310 },
-    { id: 4, price: 2200, discount: 5, room: 410 },
-  ];
+      setRooms(response?.data?.data?.rooms || []);
+
+      const msg = response?.data?.message;
+      if (msg) showToast(msg, "success");
+
+    } catch (error) {
+      let errMsg = "Something went wrong";
+
+      if (axios.isAxiosError(error)) {
+        errMsg =
+          error.response?.data?.message ||
+          error.message ||
+          "Request failed";
+      }
+
+      showToast(errMsg, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchRooms();
+}, [checkIn, checkOut, capacity]);
   return (
     <Box
       component={Paper}
@@ -59,106 +106,155 @@ const getAds = async () => {
         borderRadius: 3,
       }}
     >
-      <PageHeader title="Explore ALL Rooms" />
-      <Typography sx={{ my: 3 }}>All Rooms</Typography>
-      <Grid container spacing={3}>
-        {ads.map((ad) => (
-          <Card
-            key={ad._id}
-            sx={{
-              width: { xs: "100%", md: "400px" },
-              height: "250px",
-              position: "relative",
-              borderRadius: "15px",
-              overflow: "hidden",
-              boxShadow: 4,
-              mb: 3,
-              transition: "0.3s",
-              "&:hover": {
-                transform: "scale(1.02)",
-                boxShadow: 6,
-              },
-            }}
+      <PageHeader title="Explore Available Rooms" />
+
+      <Typography sx={{ my: 3 }}>
+        Available Rooms
+      </Typography>
+
+      {/* Loading */}
+      {loading && (
+        <Typography sx={{ mb: 2 }}>
+          Loading rooms...
+        </Typography>
+      )}
+
+      {/* Empty state */}
+      {!loading && rooms.length === 0 && (
+        <Typography sx={{ mb: 2 }}>
+          No rooms found for selected filters
+        </Typography>
+      )}
+
+      {/* GRID */}
+      <Grid container spacing={{ xs: 2, md: 3 }}>
+        {rooms.map((room) => (
+          <Grid
+            key={room._id}
+            size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
           >
-            {/* Image */}
-            <img
-              src={ad.room?.images?.[0] || cardImage}
-              alt="room"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-
-            {/* Dark overlay */}
-            <Box
+            <Card
               sx={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0.1))",
-              }}
-            />
-
-            {/* Price badge  */}
-            <Typography
-              sx={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                backgroundColor: "#FF498B",
-                color: "#fff",
-                borderRadius: "0px 15px",
-                px: 2,
-                py: 0.5,
-                fontSize: "13px",
-                fontWeight: "bold",
-                zIndex: 2,
+                height: 260,
+                position: "relative",
+                borderRadius: "18px",
+                overflow: "hidden",
+                boxShadow: 3,
+                transition: "all 0.35s ease",
+                cursor: "pointer",
+                "&:hover": {
+                  transform: "translateY(-6px) scale(1.02)",
+                  boxShadow: 10,
+                },
+                "&:hover img": {
+                  transform: "scale(1.1)",
+                },
               }}
             >
-              ${ad.room?.price} / night
-            </Typography>
+              {/* Image */}
+              <img
+                src={room.images?.[0] || cardImage}
+                alt="room"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  transition: "transform 0.5s ease",
+                }}
+              />
 
-            {/* Discount */}
-            {ad.room.discount > 0 && (
+              {/* Overlay */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.1))",
+                }}
+              />
 
-            <Chip
-              label={`${ad.room?.discount || 0}% OFF`}
-              color="error"
-              size="small"
-              sx={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                fontWeight: "bold",
-                zIndex: 2,
-              }}
-            />
-            )}
+              {/* Price */}
+              <Typography
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  background: "rgba(255, 73, 139, 0.9)",
+                  color: "#fff",
+                  px: 2,
+                  py: 0.5,
+                  fontSize: 12,
+                  fontWeight: "bold",
+                  borderRadius: "10px",
+                }}
+              >
+                ${room.price} / night
+              </Typography>
 
-            {/* Room number */}
-            <Typography
-              sx={{
-                position: "absolute",
-                bottom: 10,
-                left: 10,
-                color: "#fff",
-                fontWeight: "bold",
-                zIndex: 2,
-                fontSize: "15px",
-                backgroundColor: "rgba(0,0,0,0.4)",
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 2,
-              }}
-            >
-              Room : {ad.room?.roomNumber}<br/>
-              Capacity : {ad.room.capacity}
-            </Typography>
-          </Card>
+              {/* Discount */}
+              {room.discount > 0 && (
+                <Chip
+                  label={`${room.discount}% OFF`}
+                  color="error"
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    top: 10,
+                    left: 10,
+                    fontWeight: "bold",
+                  }}
+                />
+              )}
+
+              {/* Info */}
+              <Typography
+                sx={{
+                  position: "absolute",
+                  bottom: 10,
+                  left: 10,
+                  color: "#fff",
+                  fontWeight: "bold",
+                  fontSize: 13,
+                  px: 1.5,
+                  py: 0.7,
+                  borderRadius: 2,
+                  background: "rgba(255,255,255,0.12)",
+                  backdropFilter: "blur(6px)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
+                Room: {room.roomNumber} <br />
+                Capacity: {room.capacity}
+              </Typography>
+            </Card>
+          </Grid>
         ))}
       </Grid>
+
+      {/* 🔥 Toast (TOP CENTER + STYLED) */}
+      <Snackbar
+        open={toast.open}
+        autoHideDuration={3000}
+        onClose={handleCloseToast}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseToast}
+          severity={toast.type}
+          variant="filled"
+          sx={{
+            width: "100%",
+            borderRadius: "12px",
+            fontWeight: 600,
+            boxShadow: 6,
+            px: 2,
+            py: 1,
+            fontSize: "14px",
+          }}
+        >
+          {toast.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
