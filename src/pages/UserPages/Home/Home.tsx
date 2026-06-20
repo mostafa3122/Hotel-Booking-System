@@ -1,6 +1,8 @@
 import { Box, Typography, Grid } from "@mui/material";
 import BookingCard from "./BookingCard/BookingCard";
 import AllAds from "../Ads/AllAds";
+import Houses from "./Houses/Houses";
+import LivingRoom from "./Holes/LivingRoom";
 
 export default function Home() {
   return (
@@ -76,7 +78,12 @@ export default function Home() {
       <Box sx={{ px: { xs: 2, md: 8 }, pb: 6 }}>
         <AllAds />
       </Box>
-
+       <Box sx={{ px: { xs: 2, md: 8 }, pb: 6 }}>
+        <Houses />
+      </Box>
+       <Box sx={{ px: { xs: 2, md: 8 }, pb: 6 }}>
+        <LivingRoom/>
+      </Box>
     </Box>
   );
 }

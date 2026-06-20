@@ -100,7 +100,7 @@ export default function AllAds() {
   }
 
   return (
-    <Box sx={{ maxWidth: "1400px", mx: "auto", px: 2, py: 2 }}>
+    <Box sx={{ maxWidth: "1400px", mx: "auto", px: 1, py: 10 }}>
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
         Ads Gallery
       </Typography>
