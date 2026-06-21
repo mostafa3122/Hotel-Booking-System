@@ -4,7 +4,7 @@ import AllAds from "../Ads/AllAds";
 import Houses from "./Houses/Houses";
 import LivingRoom from "./Holes/LivingRoom";
 import AdsCarsol from "../Ads/AdsCarsol/AdsCarsol";
-import ReviewsHome from "../ReviewsHome/ReviewsHome";
+import ReviewsHome from "../SectionReview/SectionReview";
 
 export default function Home() {
   return (
