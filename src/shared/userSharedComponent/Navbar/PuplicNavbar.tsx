@@ -1,5 +1,5 @@
-import { useState, useContext } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -12,6 +12,7 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Divider,
   Menu,
@@ -23,37 +24,155 @@ import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
+import StarBorderOutlinedIcon from "@mui/icons-material/StarBorderOutlined";
+import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 
 import { AuthContext } from "../../../context/AuthContext";
 import avatar from "../../../assets/avatar.png";
 import CustomButton from "../../components/CustomButton/CustomButton";
+
+const NAV_LINKS = [
+  { to: "/", label: "Home", icon: HomeOutlinedIcon, authOnly: false },
+  { to: "/explore", label: "Explore", icon: ExploreOutlinedIcon, authOnly: false },
+  { to: "/reviews", label: "Reviews", icon: StarBorderOutlinedIcon, authOnly: true },
+  { to: "/favorites", label: "Favorites", icon: FavoriteBorderOutlinedIcon, authOnly: true },
+];
+
+// ── Desktop nav link — adds active highlighting + underline, and fixes the
+// default MUI Button uppercase transform that was silently turning
+// "Home" / "Explore" into "HOME" / "EXPLORE". ─────────────────────────────────
+function NavItem({ to, label }: { to: string; label: string }) {
+  const location = useLocation();
+  const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+
+  return (
+    <Button
+      component={NavLink}
+      to={to}
+      sx={{
+        position: "relative",
+        textTransform: "none",
+        fontSize: 14,
+        fontWeight: isActive ? 700 : 500,
+        color: isActive ? "#3252DF" : "#1F263E",
+        px: 1.8,
+        borderRadius: 1.5,
+        "&:hover": { color: "#3252DF", bgcolor: "rgba(50,82,223,0.06)" },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          bottom: 4,
+          left: "50%",
+          width: "55%",
+          height: 2,
+          borderRadius: 2,
+          bgcolor: "#3252DF",
+          transform: isActive ? "translateX(-50%) scaleX(1)" : "translateX(-50%) scaleX(0)",
+          transition: "transform 0.2s ease",
+        },
+        "&:hover::after": { transform: "translateX(-50%) scaleX(1)" },
+      }}
+    >
+      {label}
+    </Button>
+  );
+}
+
+// ── Mobile drawer link — same active-state logic, with a leading icon to
+// match the desktop avatar menu's visual language. ───────────────────────────
+function MobileNavItem({
+  to,
+  label,
+  Icon,
+  onClick,
+}: {
+  to: string;
+  label: string;
+  Icon: React.ElementType;
+  onClick: () => void;
+}) {
+  const location = useLocation();
+  const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+
+  return (
+    <ListItem disablePadding>
+      <ListItemButton
+        component={NavLink}
+        to={to}
+        onClick={onClick}
+        selected={isActive}
+        sx={{
+          borderRadius: 1.5,
+          mb: 0.3,
+          "&.Mui-selected": { bgcolor: "rgba(50,82,223,0.08)" },
+          "&.Mui-selected:hover": { bgcolor: "rgba(50,82,223,0.12)" },
+        }}
+      >
+        <ListItemIcon sx={{ minWidth: 34, color: isActive ? "#3252DF" : "#8A92A6" }}>
+          <Icon sx={{ fontSize: 20 }} />
+        </ListItemIcon>
+      <ListItemText
+          primary={
+            <Typography
+              sx={{
+                fontSize: 14,
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? "#3252DF" : "#1F263E",
+              }}
+            >
+              {label}
+            </Typography>
+          }
+        />
+      </ListItemButton>
+    </ListItem>
+  );
+}
 
 export default function PublicNavbar() {
   const { token, userData, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
-type AnchorElType = HTMLElement | null;
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
-  const toggleDrawer = () => setOpen(!open);
+  const toggleDrawer = () => setOpen((prev) => !prev);
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleCloseMenu = () => setAnchorEl(null);
 
- const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
-  setAnchorEl(event.currentTarget);
-};
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
+  // Subtle shadow once the page scrolls, so the bar feels "lifted" off content.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const profileImageSrc = userData?.profileImage
+    ? userData.profileImage.startsWith("http")
+      ? userData.profileImage
+      : `https://upskilling-egypt.com:3000/${userData.profileImage}`
+    : avatar;
+
+  const visibleLinks = NAV_LINKS.filter((link) => !link.authOnly || token);
 
   return (
     <>
       <AppBar
-        position="static"
+        position="sticky"
         elevation={0}
         sx={{
+          top: 0,
           bgcolor: "white",
           color: "#152C5B",
-          borderBottom: "1px solid #E5E5E5",
+          borderBottom: scrolled ? "1px solid transparent" : "1px solid #E5E5E5",
+          boxShadow: scrolled ? "0 6px 24px -12px rgba(20,16,60,0.18)" : "none",
+          transition: "box-shadow 0.25s ease, border-color 0.25s ease",
         }}
       >
         <Toolbar
@@ -72,6 +191,8 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
               fontWeight: 700,
               fontSize: "28px",
               color: "#3252DF",
+              transition: "opacity 0.15s ease",
+              "&:hover": { opacity: 0.85 },
             }}
           >
             Staycation.
@@ -85,25 +206,9 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
               alignItems: "center",
             }}
           >
-            <Button component={NavLink} to="/">
-              Home
-            </Button>
-
-            <Button component={NavLink} to="/explore">
-              Explore
-            </Button>
-
-            {token && (
-              <>
-                <Button component={NavLink} to="/reviews">
-                  Reviews
-                </Button>
-
-                <Button component={NavLink} to="/favorites">
-                  Favorites
-                </Button>
-              </>
-            )}
+            {visibleLinks.map((link) => (
+              <NavItem key={link.to} to={link.to} label={link.label} />
+            ))}
           </Box>
 
           {/* Auth */}
@@ -117,20 +222,8 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
           >
             {!token ? (
               <>
-                   <CustomButton
-  text="Register"
-  size="small"
-  variant="primary"
-  to="/auth/register"
-/>
-
-<CustomButton
-  text="Login"
-  size="small"
-    variant="primary"
-
-  to="/auth/login"
-/>
+                <CustomButton text="Register" size="small" variant="primary" to="/auth/register" />
+                <CustomButton text="Login" size="small" variant="primary" to="/auth/login" />
               </>
             ) : (
               <>
@@ -144,20 +237,14 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
                     p: 0.5,
                     pr: 1.5,
                     borderRadius: "30px",
-                    transition: "all 0.2s ease-in-out",
+                    transition: "background-color 0.2s ease-in-out",
                     "&:hover": {
                       bgcolor: "rgba(32, 63, 199, 0.05)",
                     },
                   }}
                 >
                   <Avatar
-                    src={
-                      userData?.profileImage
-                        ? userData.profileImage.startsWith("http")
-                          ? userData.profileImage
-                          : `https://upskilling-egypt.com:3000/${userData.profileImage}`
-                        : avatar
-                    }
+                    src={profileImageSrc}
                     sx={{
                       width: 38,
                       height: 38,
@@ -170,6 +257,10 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
                       fontSize: "14px",
                       fontWeight: 500,
                       color: "#1F263E",
+                      maxWidth: 140,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {userData?.userName}
@@ -179,6 +270,8 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
                     sx={{
                       color: "#8A92A6",
                       fontSize: "18px",
+                      transition: "transform 0.2s ease",
+                      transform: anchorEl ? "rotate(180deg)" : "rotate(0deg)",
                     }}
                   />
                 </Box>
@@ -187,13 +280,18 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
                   anchorEl={anchorEl}
                   open={Boolean(anchorEl)}
                   onClose={handleCloseMenu}
-                  anchorOrigin={{
-                    horizontal: "right",
-                    vertical: "bottom",
-                  }}
-                  transformOrigin={{
-                    horizontal: "right",
-                    vertical: "top",
+                  anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                  transformOrigin={{ horizontal: "right", vertical: "top" }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        mt: 1,
+                        minWidth: 190,
+                        borderRadius: 2,
+                        boxShadow: "0 12px 32px -12px rgba(20,16,60,0.25)",
+                        border: "1px solid #EFEDF8",
+                      },
+                    },
                   }}
                 >
                   <MenuItem
@@ -201,14 +299,9 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
                       navigate("/dashboard/profile");
                       handleCloseMenu();
                     }}
+                    sx={{ fontSize: 14, py: 1.1 }}
                   >
-                    <PersonOutlinedIcon
-                      sx={{
-                        fontSize: 18,
-                        mr: 1,
-                        color: "#1976d2",
-                      }}
-                    />
+                    <PersonOutlinedIcon sx={{ fontSize: 18, mr: 1.2, color: "#1976d2" }} />
                     Profile
                   </MenuItem>
 
@@ -219,14 +312,9 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
                       logout();
                       handleCloseMenu();
                     }}
+                    sx={{ fontSize: 14, py: 1.1, color: "#EA5455" }}
                   >
-                    <LogoutIcon
-                      sx={{
-                        fontSize: 18,
-                        mr: 1,
-                        color: "#EA5455",
-                      }}
-                    />
+                    <LogoutIcon sx={{ fontSize: 18, mr: 1.2, color: "#EA5455" }} />
                     Logout
                   </MenuItem>
                 </Menu>
@@ -237,6 +325,7 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
           {/* Mobile Menu Button */}
           <IconButton
             onClick={toggleDrawer}
+            aria-label="Open navigation menu"
             sx={{ display: { xs: "flex", md: "none" } }}
           >
             <MenuIcon />
@@ -245,113 +334,129 @@ const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
       </AppBar>
 
       {/* Mobile Drawer */}
-      <Drawer
-        anchor="right"
-        open={open}
-        onClose={toggleDrawer}
-        transitionDuration={400}
-      >
-        <Box
-          sx={{
-            width: 260,
-            p: 2,
-          }}
-        >
-          <IconButton onClick={toggleDrawer}>
-            <CloseIcon />
-          </IconButton>
+      <Drawer anchor="right" open={open} onClose={toggleDrawer} transitionDuration={300}>
+        <Box sx={{ width: 280, height: "100%", display: "flex", flexDirection: "column" }}>
+          {/* Drawer header */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 2,
+              py: 1.8,
+            }}
+          >
+            <Typography sx={{ fontWeight: 700, fontSize: 20, color: "#3252DF" }}>
+              Staycation.
+            </Typography>
+            <IconButton onClick={toggleDrawer} aria-label="Close navigation menu" size="small">
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
 
-          <Divider sx={{ mb: 2 }} />
+          <Divider />
 
-          <List>
-            <ListItem disablePadding>
-              <ListItemButton component={NavLink} to="/" onClick={toggleDrawer}>
-                <ListItemText primary="Home" />
-              </ListItemButton>
-            </ListItem>
+          {/* Mini profile card for logged-in users */}
+          {token && (
+            <Box
+              onClick={() => {
+                navigate("/dashboard/profile");
+                toggleDrawer();
+              }}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.4,
+                px: 2,
+                py: 1.6,
+                cursor: "pointer",
+                "&:hover": { bgcolor: "rgba(50,82,223,0.05)" },
+              }}
+            >
+              <Avatar src={profileImageSrc} sx={{ width: 44, height: 44, border: "2px solid #E2E5EB" }} />
+              <Box sx={{ minWidth: 0 }}>
+                <Typography sx={{ fontSize: 14, fontWeight: 700, color: "#1F263E", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {userData?.userName}
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: "#8A92A6" }}>View profile</Typography>
+              </Box>
+            </Box>
+          )}
 
-            <ListItem disablePadding>
-              <ListItemButton
-                component={NavLink}
-                to="/explore"
+          <Divider sx={{ mb: 1 }} />
+
+          <List sx={{ px: 1, flex: 1 }}>
+            {visibleLinks.map((link) => (
+              <MobileNavItem
+                key={link.to}
+                to={link.to}
+                label={link.label}
+                Icon={link.icon}
                 onClick={toggleDrawer}
-              >
-                <ListItemText primary="Explore" />
-              </ListItemButton>
-            </ListItem>
+              />
+            ))}
 
-            {token && (
-              <>
-                <ListItem disablePadding>
-                  <ListItemButton
-                    component={NavLink}
-                    to="/reviews"
-                    onClick={toggleDrawer}
-                  >
-                    <ListItemText primary="Reviews" />
-                  </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                  <ListItemButton
-                    component={NavLink}
-                    to="/favorites"
-                    onClick={toggleDrawer}
-                  >
-                    <ListItemText primary="Favorites" />
-                  </ListItemButton>
-                </ListItem>
-              </>
-            )}
-
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 1.5 }} />
 
             {!token ? (
               <>
                 <ListItem disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to="/auth/login"
-                    onClick={toggleDrawer}
-                  >
-                    <ListItemText primary="Login" />
-                  </ListItemButton>
+                  <ListItemButton component={Link} to="/auth/login" onClick={toggleDrawer} sx={{ borderRadius: 1.5 }}>
+                    <ListItemIcon sx={{ minWidth: 34, color: "#8A92A6" }}>
+                      <LoginOutlinedIcon sx={{ fontSize: 20 }} />
+                    </ListItemIcon>
+                      <ListItemText
+                        primary={
+                          <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
+                            Login
+                          </Typography>
+                        }
+                      />                  
+                      </ListItemButton>
                 </ListItem>
 
                 <ListItem disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to="/auth/register"
-                    onClick={toggleDrawer}
-                  >
-                    <ListItemText primary="Register" />
+                  <ListItemButton component={Link} to="/auth/register" onClick={toggleDrawer} sx={{ borderRadius: 1.5 }}>
+                    <ListItemIcon sx={{ minWidth: 34, color: "#8A92A6" }}>
+                      <PersonAddAltOutlinedIcon sx={{ fontSize: 20 }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
+                          Register
+                        </Typography>
+                      }
+                    />
                   </ListItemButton>
                 </ListItem>
               </>
             ) : (
-              <>
-                <ListItem disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      navigate("/dashboard/profile");
-                      toggleDrawer();
-                    }}
-                  >
-                    <ListItemText primary="Profile" />
-                  </ListItemButton>
-                </ListItem>
-
-                <ListItem disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      logout();
-                      toggleDrawer();
-                    }}
-                  >
-                    <ListItemText primary="Logout" />
-                  </ListItemButton>
-                </ListItem>
-              </>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    logout();
+                    toggleDrawer();
+                  }}
+                  sx={{ borderRadius: 1.5 }}
+                >
+                  <ListItemIcon sx={{ minWidth: 34, color: "#EA5455" }}>
+                    <LogoutIcon sx={{ fontSize: 20 }} />
+                  </ListItemIcon>
+                 <ListItemText
+                    primary={
+                      <Typography
+                        sx={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: "#EA5455",
+                        }}
+                      >
+                        Logout
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
             )}
           </List>
         </Box>

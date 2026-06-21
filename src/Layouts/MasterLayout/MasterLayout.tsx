@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "../../shared/components/Navbar/Navbar";
 import Sidebar from "../../shared/components/Sidebar/Sidebar";
 import { AuthContext } from "../../context/AuthContext";
+import PublicNavbar from "../../shared/userSharedComponent/Navbar/PuplicNavbar";
 export default function MasterLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const {userData} = useContext(AuthContext);
@@ -22,7 +23,7 @@ export default function MasterLayout() {
           bgcolor: "white",
         }}
       >
-        <Navbar />
+        {userData.role === "admin" ? <Navbar /> : <PublicNavbar />}
         <Box component="main" sx={{ flexGrow: 1, minWidth: 0, width: "100%", overflow: "hidden" }}>
           <Outlet />
         </Box>

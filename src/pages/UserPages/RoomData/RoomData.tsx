@@ -20,8 +20,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import Collapse from "@mui/material/Collapse";
-import Modal from "@mui/material/Modal";
-import Fade from "@mui/material/Fade";
+
 // Icons
 import BedOutlinedIcon from "@mui/icons-material/BedOutlined";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
@@ -38,7 +37,7 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import CloseIcon from "@mui/icons-material/Close";
-import ZoomInOutlinedIcon from "@mui/icons-material/ZoomInOutlined";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Facility {
@@ -178,152 +177,6 @@ function DateRangeCalendar({ checkIn, checkOut, onSelect }: { checkIn: Date | nu
   );
 }
 
-function ImageLightbox({
-  images,
-  index,
-  open,
-  onClose,
-  onIndexChange,
-}: {
-  images: string[];
-  index: number;
-  open: boolean;
-  onClose: () => void;
-  onIndexChange: (i: number) => void;
-}) {
-  const goPrev = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    onIndexChange(index === 0 ? images.length - 1 : index - 1);
-  };
-  const goNext = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    onIndexChange(index === images.length - 1 ? 0 : index + 1);
-  };
- 
-  // Keyboard navigation: Esc to close, arrows to navigate
-  useEffect(() => {
-    if (!open) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") goPrev();
-      if (e.key === "ArrowRight") goNext();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, index, images.length]);
- 
-  if (!images.length) return null;
- 
-  return (
-    <Modal open={open} onClose={onClose} closeAfterTransition>
-      <Fade in={open}>
-        <Box
-          onClick={onClose}
-          sx={{
-            position: "fixed", inset: 0,
-            bgcolor: "rgba(10, 8, 20, 0.92)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            outline: "none",
-          }}
-        >
-          {/* Close button */}
-          <IconButton
-            onClick={(e) => { e.stopPropagation(); onClose(); }}
-            sx={{
-              position: "absolute", top: { xs: 12, sm: 24 }, right: { xs: 12, sm: 24 },
-              color: "#fff", bgcolor: "rgba(255,255,255,0.08)",
-              "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
- 
-          {/* Counter */}
-          <Typography
-            sx={{
-              position: "absolute", top: { xs: 14, sm: 28 }, left: { xs: 16, sm: 28 },
-              color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 600,
-            }}
-          >
-            {index + 1} / {images.length}
-          </Typography>
- 
-          {/* Prev arrow */}
-          {images.length > 1 && (
-            <IconButton
-              onClick={goPrev}
-              sx={{
-                position: "absolute", left: { xs: 8, sm: 24 }, top: "50%", transform: "translateY(-50%)",
-                color: "#fff", bgcolor: "rgba(255,255,255,0.08)",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
-              }}
-            >
-              <ChevronLeftIcon fontSize="large" />
-            </IconButton>
-          )}
- 
-          {/* Main image */}
-          <Box
-            component="img"
-            onClick={(e) => e.stopPropagation()}
-            src={images[index]}
-            alt={`Gallery image ${index + 1}`}
-            sx={{
-              maxWidth: { xs: "92vw", sm: "82vw" },
-              maxHeight: { xs: "70vh", sm: "78vh" },
-              objectFit: "contain",
-              borderRadius: 2,
-              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
-            }}
-          />
- 
-          {/* Next arrow */}
-          {images.length > 1 && (
-            <IconButton
-              onClick={goNext}
-              sx={{
-                position: "absolute", right: { xs: 8, sm: 24 }, top: "50%", transform: "translateY(-50%)",
-                color: "#fff", bgcolor: "rgba(255,255,255,0.08)",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
-              }}
-            >
-              <ChevronRightIcon fontSize="large" />
-            </IconButton>
-          )}
- 
-          {/* Thumbnail strip */}
-          {images.length > 1 && (
-            <Box
-              onClick={(e) => e.stopPropagation()}
-              sx={{
-                position: "absolute", bottom: { xs: 14, sm: 28 },
-                display: "flex", gap: 1, maxWidth: "90vw", overflowX: "auto", px: 1, py: 0.5,
-              }}
-            >
-              {images.map((src, i) => (
-                <Box
-                  key={i}
-                  component="img"
-                  src={src}
-                  onClick={() => onIndexChange(i)}
-                  sx={{
-                    width: 56, height: 42, objectFit: "cover", borderRadius: 1.2,
-                    cursor: "pointer", flexShrink: 0,
-                    border: i === index ? "2px solid #fff" : "2px solid transparent",
-                    opacity: i === index ? 1 : 0.55,
-                    transition: "opacity 0.15s, border-color 0.15s",
-                    "&:hover": { opacity: 1 },
-                  }}
-                />
-              ))}
-            </Box>
-          )}
-        </Box>
-      </Fade>
-    </Modal>
-  );
-}
 // ── Review Item — no edit/delete, read-only ───────────────────────────────────
 function ReviewItem({ name, content, rate }: { name: string; content: string; rate?: number }) {
   const initial = name.charAt(0).toUpperCase();
@@ -518,14 +371,42 @@ export default function RoomData() {
   const [activeImage, setActiveImage] = useState(0);
   const [bookHover, setBookHover] = useState(false);
 
-  // ── Lightbox state ─────────────────────────────────────────────────────────
+  // ── Lightbox ───────────────────────────────────────────────────────────────
+  // Derived fresh each render so it's always in sync with room.images, even
+  // while room is still null (loading) — keeps this safe to reference from
+  // hooks that must run unconditionally, before the loading/error returns.
+  const galleryImages = room?.images?.length ? room.images : [];
+
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
- 
+
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
+  const closeLightbox = () => setLightboxOpen(false);
+  const lightboxPrev = () =>
+    setLightboxIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  const lightboxNext = () =>
+    setLightboxIndex((prev) => (prev + 1) % galleryImages.length);
+
+  // Keyboard navigation while the lightbox is open
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") lightboxPrev();
+      if (e.key === "ArrowRight") lightboxNext();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightboxOpen, galleryImages.length]);
+
+  // Lock body scroll while the lightbox is open
+  useEffect(() => {
+    document.body.style.overflow = lightboxOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [lightboxOpen]);
 
   // ── Date picker ────────────────────────────────────────────────────────────
   const [dateAnchor, setDateAnchor] = useState<null | HTMLElement>(null);
@@ -555,40 +436,45 @@ export default function RoomData() {
   const [submittingComment, setSubmittingComment] = useState(false);
 
   // ── Fetch feedback ─────────────────────────────────────────────────────────
+  // Pulled out of useEffect so it can be re-called after posting a comment/review.
+  // This is what guarantees we always have a real Mongo _id and a populated
+  // user object, instead of guessing the shape of the POST response.
+  const fetchFeedback = async () => {
+    if (!id) return;
+    setLoadingFeedback(true);
+    try {
+      const [reviewsRes, commentsRes] = await Promise.all([
+        axiosClient.get(`portal/room-reviews/${id}`),
+        axiosClient.get(`portal/room-comments/${id}`),
+      ]);
+
+      const rData = reviewsRes.data?.data;
+      const reviewList: Review[] = Array.isArray(rData)
+        ? rData
+        : Array.isArray(rData?.reviews)
+        ? rData.reviews
+        : Array.isArray(rData?.roomReviews)
+        ? rData.roomReviews
+        : [];
+
+      const cData = commentsRes.data?.data;
+      const commentList: Comment[] = Array.isArray(cData?.roomComments)
+        ? cData.roomComments
+        : Array.isArray(cData)
+        ? cData
+        : [];
+
+      setReviews(reviewList);
+      setComments(commentList);
+    } catch (err) {
+      console.error("Feedback fetch error:", err);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
+
   useEffect(() => {
     if (!isLoggedIn || !id) return;
-    const fetchFeedback = async () => {
-      setLoadingFeedback(true);
-      try {
-        const [reviewsRes, commentsRes] = await Promise.all([
-          axiosClient.get(`portal/room-reviews/${id}`),
-          axiosClient.get(`portal/room-comments/${id}`),
-        ]);
-
-        const rData = reviewsRes.data?.data;
-        const reviewList: Review[] = Array.isArray(rData)
-          ? rData
-          : Array.isArray(rData?.reviews)
-          ? rData.reviews
-          : Array.isArray(rData?.roomReviews)
-          ? rData.roomReviews
-          : [];
-
-        const cData = commentsRes.data?.data;
-        const commentList: Comment[] = Array.isArray(cData?.roomComments)
-          ? cData.roomComments
-          : Array.isArray(cData)
-          ? cData
-          : [];
-
-        setReviews(reviewList);
-        setComments(commentList);
-      } catch (err) {
-        console.error("Feedback fetch error:", err);
-      } finally {
-        setLoadingFeedback(false);
-      }
-    };
     fetchFeedback();
   }, [isLoggedIn, id]);
 
@@ -603,11 +489,10 @@ export default function RoomData() {
     if (!rateValue) { toast.warning("Please select a star rating."); return; }
     setSubmittingReview(true);
     try {
-      const res = await axiosClient.post(`portal/room-reviews`, { roomId: id, rating: rateValue, review: rateMessage });
-      const created: Review = res.data?.data?.review ?? res.data?.data;
-      if (created) setReviews((prev) => [created, ...prev]);
+      await axiosClient.post(`portal/room-reviews`, { roomId: id, rating: rateValue, review: rateMessage });
       setRateValue(0); setRateMessage("");
       toast.success("Thanks for your rating!");
+      await fetchFeedback(); // re-fetch so the new review has a real _id and populated user
     } catch (err: unknown) {
       const msg = axios.isAxiosError(err) ? err.response?.data?.message || "Failed to submit rating." : "Something went wrong.";
       toast.error(msg);
@@ -615,34 +500,21 @@ export default function RoomData() {
   };
 
   // ── Comment handlers ───────────────────────────────────────────────────────
-const handleSubmitComment = async () => {
-  if (!commentText.trim()) { toast.warning("Please write a comment first."); return; }
-  setSubmittingComment(true);
-  try {
-    const res = await axiosClient.post(`portal/room-comments`, { roomId: id, comment: commentText });
-
-    // Don't trust the response shape for display fields — pull only the id (if present),
-    // and build the rest from what we already know locally.
-    const raw = res.data?.data?.comment ?? res.data?.data ?? {};
-    const newId = raw._id ?? raw.id ?? `temp-${Date.now()}`;
-
-    const newComment: Comment = {
-      _id: newId,
-      comment: commentText,
-      user: { _id: userData!._id, userName: userData!.userName },
-      createdAt: new Date().toISOString(),
-    };
-
-    setComments((prev) => [newComment, ...prev]);
-    setCommentText("");
-    toast.success("Comment posted!");
-  } catch (err: unknown) {
-    const msg = axios.isAxiosError(err) ? err.response?.data?.message || "Failed to post comment." : "Something went wrong.";
-    toast.error(msg);
-  } finally {
-    setSubmittingComment(false);
-  }
-};
+  const handleSubmitComment = async () => {
+    if (!commentText.trim()) { toast.warning("Please write a comment first."); return; }
+    setSubmittingComment(true);
+    try {
+      await axiosClient.post(`portal/room-comments`, { roomId: id, comment: commentText });
+      setCommentText("");
+      toast.success("Comment posted!");
+      await fetchFeedback(); // re-fetch so the new comment has a real _id and populated user
+    } catch (err: unknown) {
+      const msg = axios.isAxiosError(err) ? err.response?.data?.message || "Failed to post comment." : "Something went wrong.";
+      toast.error(msg);
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
 
   const handleDeleteComment = async (commentId: string) => {
     try {
@@ -714,14 +586,12 @@ const handleSubmitComment = async () => {
     navigate("/bookingPayment", { state: { roomId: room._id, checkIn, checkOut, price: finalPrice } });
   };
 
-  const gallery = room.images?.length ? room.images : [];
-  const mainImage = gallery[activeImage];
-  const sideImages = gallery.filter((_, i) => i !== activeImage).slice(0, 2);
+  const mainImage = galleryImages[activeImage];
+  const sideImages = galleryImages.filter((_, i) => i !== activeImage).slice(0, 2);
   const displayFacilities = room.facilities?.length
     ? room.facilities
     : [{ _id: "cap", name: `${room.capacity} ${room.capacity === 1 ? "Guest" : "Guests"}` }];
 
-  const visibleComments = showAllComments ? comments : comments.slice(0, 2);
   const hasMoreComments = comments.length > 2;
 
   return (
@@ -739,42 +609,24 @@ const handleSubmitComment = async () => {
       </Box>
 
       {/* Gallery */}
-  <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, height: { xs: "auto", sm: 460 }, mb: 4 }}>
-        <Box
-          onClick={() => mainImage && openLightbox(activeImage)}
-          sx={{
-            position: "relative",
-            flex: { xs: "0 0 auto", sm: "0 0 58%" }, height: { xs: 320, sm: "100%" },
-            borderRadius: 2, overflow: "hidden", bgcolor: "#F3F1FB",
-            cursor: mainImage ? "pointer" : "default",
-            "&:hover .lightbox-hint": { opacity: 1 },
-          }}
-        >
+      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, height: { xs: "auto", sm: 460 }, mb: 4 }}>
+        <Box sx={{ flex: { xs: "0 0 auto", sm: "0 0 58%" }, height: { xs: 320, sm: "100%" }, borderRadius: 2, overflow: "hidden", bgcolor: "#F3F1FB", position: "relative", "&:hover .lightbox-trigger": { opacity: 1 } }}>
           {mainImage ? (
             <>
-              <Box component="img" src={mainImage} alt={`Room ${room.roomNumber}`} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/700x500?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              {/* Zoom hint overlay */}
-              <Box
-                className="lightbox-hint"
+              <Box component="img" src={mainImage} alt={`Room ${room.roomNumber}`} onClick={() => openLightbox(activeImage)} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/700x500?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover", cursor: "pointer" }} />
+              <IconButton
+                className="lightbox-trigger"
+                onClick={() => openLightbox(activeImage)}
+                size="small"
                 sx={{
-                  position: "absolute", inset: 0,
-                  bgcolor: "rgba(10,8,20,0.0)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  opacity: 0, transition: "opacity 0.2s, background-color 0.2s",
-                  "&:hover": { bgcolor: "rgba(10,8,20,0.25)" },
+                  position: "absolute", bottom: 10, right: 10,
+                  color: "#fff", bgcolor: "rgba(20,16,40,0.55)",
+                  opacity: { xs: 1, sm: 0 }, transition: "opacity 0.2s",
+                  "&:hover": { bgcolor: "rgba(20,16,40,0.75)" },
                 }}
               >
-                <Box
-                  sx={{
-                    width: 44, height: 44, borderRadius: "50%",
-                    bgcolor: "rgba(255,255,255,0.9)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "#3D2EBF",
-                  }}
-                >
-                  <ZoomInOutlinedIcon />
-                </Box>
-              </Box>
+                <OpenInFullIcon sx={{ fontSize: 15 }} />
+              </IconButton>
             </>
           ) : (
             <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -784,34 +636,24 @@ const handleSubmitComment = async () => {
         </Box>
         <Box sx={{ flex: { xs: "0 0 auto", sm: "1 1 auto" }, display: "flex", flexDirection: "column", gap: 1, height: { xs: "auto", sm: "100%" } }}>
           {sideImages.length > 0 ? (
-            sideImages.map((src, i) => {
-              const realIdx = gallery.indexOf(src);
-              return (
-                <Box
-                  key={i}
-                  onClick={() => openLightbox(realIdx)}
+            sideImages.map((src, i) => (
+              <Box key={i} sx={{ flex: "1 1 0", height: { xs: 155, sm: "auto" }, borderRadius: 2, overflow: "hidden", position: "relative", bgcolor: "#F3F1FB", "&:hover .lightbox-trigger": { opacity: 1 } }}>
+                <Box component="img" src={src} onClick={() => setActiveImage(galleryImages.indexOf(src))} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/400x300?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "pointer" }} />
+                <IconButton
+                  className="lightbox-trigger"
+                  onClick={() => openLightbox(galleryImages.indexOf(src))}
+                  size="small"
                   sx={{
-                    position: "relative",
-                    flex: "1 1 0", height: { xs: 155, sm: "auto" },
-                    borderRadius: 2, overflow: "hidden", cursor: "pointer", bgcolor: "#F3F1FB",
-                    "&:hover .lightbox-hint-small": { opacity: 1 },
+                    position: "absolute", bottom: 6, right: 6,
+                    color: "#fff", bgcolor: "rgba(20,16,40,0.55)",
+                    opacity: { xs: 1, sm: 0 }, transition: "opacity 0.2s",
+                    "&:hover": { bgcolor: "rgba(20,16,40,0.75)" },
                   }}
                 >
-                  <Box component="img" src={src} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/400x300?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                  <Box
-                    className="lightbox-hint-small"
-                    sx={{
-                      position: "absolute", inset: 0,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      opacity: 0, transition: "opacity 0.2s, background-color 0.2s",
-                      "&:hover": { bgcolor: "rgba(10,8,20,0.25)" },
-                    }}
-                  >
-                    <ZoomInOutlinedIcon sx={{ color: "#fff", fontSize: 20 }} />
-                  </Box>
-                </Box>
-              );
-            })
+                  <OpenInFullIcon sx={{ fontSize: 13 }} />
+                </IconButton>
+              </Box>
+            ))
           ) : (
             <>
               <Skeleton variant="rounded" sx={{ flex: "1 1 0", borderRadius: 2 }} />
@@ -820,15 +662,6 @@ const handleSubmitComment = async () => {
           )}
         </Box>
       </Box>
- 
-      {/* Lightbox modal */}
-      <ImageLightbox
-        images={gallery}
-        index={lightboxIndex}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        onIndexChange={setLightboxIndex}
-      />
 
       {/* Body */}
       <Grid container spacing={3}>
@@ -857,16 +690,16 @@ const handleSubmitComment = async () => {
 
         {/* Booking card */}
         <Grid size={{ xs: 12, sm: 5 }}>
-          <Paper elevation={0} sx={{ borderRadius: 2.5, border: "1px solid #EFEDF8", p: 5, boxShadow: "0 8px 24px -12px rgba(70,40,200,0.12)" }}>
+          <Paper elevation={0} sx={{ borderRadius: 2.5, border: "1px solid #EFEDF8", p: 2.5, boxShadow: "0 8px 24px -12px rgba(70,40,200,0.12)" }}>
             <Typography sx={{ fontSize: 13, color: "#1F1B3C", fontWeight: 700, mb: 1.5 }}>Start Booking</Typography>
             <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.8, mb: 0.4 }}>
               <Typography sx={{ fontSize: 24, fontWeight: 800, color: "#16A34A" }}>${room.price}</Typography>
               <Typography sx={{ fontSize: 12.5, color: "#9A97AE" }}>per night</Typography>
             </Box>
             {room.discount > 0 && (
-              <Typography sx={{ fontSize: 12, color: "#E0473E", fontWeight: 600, mb: 5 }}>Discount {room.discount}% Off</Typography>
+              <Typography sx={{ fontSize: 12, color: "#E0473E", fontWeight: 600, mb: 2 }}>Discount {room.discount}% Off</Typography>
             )}
-            <Typography sx={{ fontSize: 11.5, color: "#9A97AE", fontWeight: 600, mb: 0.8 }}>Pick a Date</Typography>
+            <Typography sx={{ fontSize: 11.5, color: "#9A97AE", fontWeight: 600, mb: 0.8 , mt:8 }}>Pick a Date</Typography>
             <Box onClick={openDatePicker} sx={{ display: "flex", alignItems: "center", gap: 1, border: "1px solid #EFEDF8", borderRadius: 1.5, px: 1.5, py: 1, mb: 2, cursor: "pointer", transition: "border-color 0.15s", "&:hover": { borderColor: "#D9D3F7" } }}>
               <CalendarMonthOutlinedIcon sx={{ fontSize: 17, color: "#3D2EBF" }} />
               <Typography sx={{ fontSize: 12.5, color: checkIn ? "#1F1B3C" : "#9A97AE", fontWeight: 500 }}>
@@ -934,7 +767,7 @@ const handleSubmitComment = async () => {
 
             {/* Right: Comments */}
             <Grid size={{ xs: 12, sm: 6 }}>
-              <Typography sx={{ fontSize: 12.5, color: "#9A97AE", fontWeight: 600, mb: 0.8 ,mt:8 }}>Add Your Comment</Typography>
+              <Typography sx={{ fontSize: 12.5, color: "#9A97AE", fontWeight: 600, mb: 0.8, mt: 8 }}>Add Your Comment</Typography>
               <TextField
                 fullWidth multiline rows={5}
                 placeholder="Write a comment…"
@@ -1007,6 +840,91 @@ const handleSubmitComment = async () => {
               ) : null}
             </Grid>
           </Grid>
+        </Box>
+      )}
+
+      {/* ── Image Lightbox ── */}
+      {lightboxOpen && galleryImages.length > 0 && (
+        <Box
+          onClick={closeLightbox}
+          sx={{
+            position: "fixed", inset: 0, zIndex: 1300,
+            bgcolor: "rgba(15, 13, 30, 0.92)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            p: { xs: 2, sm: 4 },
+          }}
+        >
+          <IconButton
+            onClick={closeLightbox}
+            sx={{
+              position: "absolute", top: 16, right: 16,
+              color: "#fff", bgcolor: "rgba(255,255,255,0.1)",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+
+          <Typography sx={{ position: "absolute", top: 22, left: 20, color: "#fff", fontSize: 13, fontWeight: 600 }}>
+            {lightboxIndex + 1} / {galleryImages.length}
+          </Typography>
+
+          {galleryImages.length > 1 && (
+            <IconButton
+              onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+              sx={{
+                position: "absolute", left: { xs: 6, sm: 24 }, top: "50%", transform: "translateY(-50%)",
+                color: "#fff", bgcolor: "rgba(255,255,255,0.1)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+              }}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+          )}
+
+          <Box
+            component="img"
+            src={galleryImages[lightboxIndex]}
+            alt={`Room ${room.roomNumber} photo ${lightboxIndex + 1}`}
+            onClick={(e) => e.stopPropagation()}
+            onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/900x600?text=Room"; }}
+            sx={{
+              maxWidth: "100%", maxHeight: "85vh", objectFit: "contain",
+              borderRadius: 2, boxShadow: "0 20px 60px -20px rgba(0,0,0,0.5)",
+            }}
+          />
+
+          {galleryImages.length > 1 && (
+            <IconButton
+              onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+              sx={{
+                position: "absolute", right: { xs: 6, sm: 24 }, top: "50%", transform: "translateY(-50%)",
+                color: "#fff", bgcolor: "rgba(255,255,255,0.1)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.2)" },
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          )}
+
+          {galleryImages.length > 1 && (
+            <Box
+              onClick={(e) => e.stopPropagation()}
+              sx={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 0.8 }}
+            >
+              {galleryImages.map((_, i) => (
+                <Box
+                  key={i}
+                  onClick={() => setLightboxIndex(i)}
+                  sx={{
+                    width: 7, height: 7, borderRadius: "50%", cursor: "pointer",
+                    bgcolor: i === lightboxIndex ? "#fff" : "rgba(255,255,255,0.4)",
+                    transition: "background-color 0.2s",
+                  }}
+                />
+              ))}
+            </Box>
+          )}
         </Box>
       )}
     </Box>
