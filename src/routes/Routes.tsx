@@ -30,6 +30,7 @@ import Explore from "../pages/UserPages/Explore/Explore";
 import Favorites from "../pages/UserPages/Favorites/Favorites";
 import RoomData from "../pages/UserPages/RoomData/RoomData";
 import BookingPayment from "../pages/UserPages/BookingPayment/BookingPayment";
+import Reviews from "../pages/UserPages/Reviews/Reviews";
 
 const router = createBrowserRouter([
   // User routes
@@ -44,6 +45,8 @@ const router = createBrowserRouter([
       { path: "favorites", element: <Favorites /> },
       { path: "room-details/:id", element: <RoomData /> },
       { path: "bookingPayment", element: <BookingPayment /> },
+      { path: "reviews", element: <Reviews /> },
+      { path: "reviews/:id", element: <Reviews /> },
     ],
   },
   // auth routes
