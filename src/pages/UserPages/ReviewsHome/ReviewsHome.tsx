@@ -31,7 +31,7 @@ interface Review {
   };
 }
 
-export default function Reviews() {
+export default function ReviewsHome() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomIndex, setRoomIndex] = useState(0);
 
