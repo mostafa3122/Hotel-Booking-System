@@ -26,20 +26,21 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 import { AuthContext } from "../../../context/AuthContext";
 import avatar from "../../../assets/avatar.png";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 export default function PublicNavbar() {
   const { token, userData, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+type AnchorElType = HTMLElement | null;
 
+const [anchorEl, setAnchorEl] = useState<AnchorElType>(null);
   const toggleDrawer = () => setOpen(!open);
 
-  const handleOpenMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
+ const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+  setAnchorEl(event.currentTarget);
+};
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
@@ -116,21 +117,20 @@ export default function PublicNavbar() {
           >
             {!token ? (
               <>
-                <Button
-                  component={Link}
-                  to="/auth/register"
-                  variant="contained"
-                >
-                  Register
-                </Button>
+                   <CustomButton
+  text="Register"
+  size="small"
+  variant="primary"
+  to="/auth/register"
+/>
 
-                <Button
-                  component={Link}
-                  to="/auth/login"
-                  variant="contained"
-                >
-                  Login
-                </Button>
+<CustomButton
+  text="Login"
+  size="small"
+    variant="primary"
+
+  to="/auth/login"
+/>
               </>
             ) : (
               <>

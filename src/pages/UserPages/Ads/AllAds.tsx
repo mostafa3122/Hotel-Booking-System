@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import axiosClient from "../../../services/api/axiosClient";
 import FavoriteButton from "./FavoriteButton/FavoriteButton";
+import SharedTitle from "../../../shared/userSharedComponent/SharedTitle/SharedTitle";
 
 interface Ad {
   _id: string;
@@ -61,7 +62,6 @@ export default function AllAds() {
     setToast((prev) => ({ ...prev, open: false }));
   };
 
-  // 📌 fetch ads
   useEffect(() => {
     const fetchAds = async () => {
       try {
@@ -101,9 +101,11 @@ export default function AllAds() {
 
   return (
     <Box sx={{ maxWidth: "1400px", mx: "auto", px: 1, py: 10 }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
-        Ads Gallery
-      </Typography>
+      <SharedTitle
+  title="Most"
+  highlight="popular ads"
+/>
+  
 
       {!loading && ads.length === 0 && (
         <Typography>No ads found</Typography>
