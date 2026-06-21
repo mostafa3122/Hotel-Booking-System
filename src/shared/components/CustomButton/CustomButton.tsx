@@ -1,9 +1,12 @@
 import { Box } from "@mui/material";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
+import { Link } from "react-router-dom";
 
 interface CustomButtonProps {
   text: string;
+    to?: string; 
+
   variant?: "primary" | "secondary";
   size?: "small" | "medium" | "large";
   width?: string;
@@ -16,6 +19,7 @@ interface CustomButtonProps {
 
 export default function CustomButton({
   text,
+  to,
   variant = "primary",
   size = "medium",
   width,
@@ -83,6 +87,8 @@ export default function CustomButton({
 
   return (
     <Button
+     component={to ? Link : "button"}
+  to={to}
       disabled={disabled || loading}
       onClick={onClick}
       sx={{
@@ -92,7 +98,7 @@ export default function CustomButton({
         height: height || buttonSizes[size].height,
         padding: padding || buttonSizes[size].padding,
 
-        borderRadius: "8px",
+        borderRadius: "5px",
         textTransform: "none",
         fontWeight: 500,
         fontSize: "16px",
