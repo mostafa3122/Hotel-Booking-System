@@ -4,6 +4,7 @@ import AllAds from "../Ads/AllAds";
 import Houses from "./Houses/Houses";
 import LivingRoom from "./Holes/LivingRoom";
 import AdsCarsol from "../Ads/AdsCarsol/AdsCarsol";
+import Reviews from "../Reviews/Reviews";
 
 export default function Home() {
   return (
@@ -87,6 +88,10 @@ export default function Home() {
       </Box>
        <Box sx={{ px: { xs: 2, md: 8 }, pb: 6 }}>
         <AdsCarsol/>
+      </Box>
+
+        <Box sx={{ px: { xs: 2, md: 8 }, pb: 6 }}>
+          <Reviews/>
       </Box>
     </Box>
   );

@@ -130,6 +130,7 @@ useEffect(() => {
             display: "flex",
             alignItems: "center",
             bgcolor: "#f8f9fb",
+            width:"86%",
             borderRadius: 2,
             border: "1px solid #eee",
             overflow: "hidden",
