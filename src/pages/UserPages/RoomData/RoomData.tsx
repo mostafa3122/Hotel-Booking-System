@@ -711,7 +711,7 @@ const handleSubmitComment = async () => {
 
             {/* Right: Comments */}
             <Grid size={{ xs: 12, sm: 6 }}>
-              <Typography sx={{ fontSize: 12.5, color: "#9A97AE", fontWeight: 600, mb: 0.8 }}>Add Your Comment</Typography>
+              <Typography sx={{ fontSize: 12.5, color: "#9A97AE", fontWeight: 600, mb: 0.8 ,mt:8 }}>Add Your Comment</Typography>
               <TextField
                 fullWidth multiline rows={5}
                 placeholder="Write a comment…"

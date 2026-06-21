@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Box } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Navbar from "../../shared/components/Navbar/Navbar";
 import Sidebar from "../../shared/components/Sidebar/Sidebar";
-
+import { AuthContext } from "../../context/AuthContext";
 export default function MasterLayout() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const {userData} = useContext(AuthContext);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#F8F9FB" }}>
-      <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      {userData.role === "admin" && <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />}
       <Box
         sx={{
           flexGrow: 1,
