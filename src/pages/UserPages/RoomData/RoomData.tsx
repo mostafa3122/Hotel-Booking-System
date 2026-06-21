@@ -20,7 +20,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import Collapse from "@mui/material/Collapse";
-
+import Modal from "@mui/material/Modal";
+import Fade from "@mui/material/Fade";
 // Icons
 import BedOutlinedIcon from "@mui/icons-material/BedOutlined";
 import WeekendOutlinedIcon from "@mui/icons-material/WeekendOutlined";
@@ -36,6 +37,8 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import CloseIcon from "@mui/icons-material/Close";
+import ZoomInOutlinedIcon from "@mui/icons-material/ZoomInOutlined";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Facility {
@@ -175,6 +178,152 @@ function DateRangeCalendar({ checkIn, checkOut, onSelect }: { checkIn: Date | nu
   );
 }
 
+function ImageLightbox({
+  images,
+  index,
+  open,
+  onClose,
+  onIndexChange,
+}: {
+  images: string[];
+  index: number;
+  open: boolean;
+  onClose: () => void;
+  onIndexChange: (i: number) => void;
+}) {
+  const goPrev = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    onIndexChange(index === 0 ? images.length - 1 : index - 1);
+  };
+  const goNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    onIndexChange(index === images.length - 1 ? 0 : index + 1);
+  };
+ 
+  // Keyboard navigation: Esc to close, arrows to navigate
+  useEffect(() => {
+    if (!open) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, index, images.length]);
+ 
+  if (!images.length) return null;
+ 
+  return (
+    <Modal open={open} onClose={onClose} closeAfterTransition>
+      <Fade in={open}>
+        <Box
+          onClick={onClose}
+          sx={{
+            position: "fixed", inset: 0,
+            bgcolor: "rgba(10, 8, 20, 0.92)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            outline: "none",
+          }}
+        >
+          {/* Close button */}
+          <IconButton
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            sx={{
+              position: "absolute", top: { xs: 12, sm: 24 }, right: { xs: 12, sm: 24 },
+              color: "#fff", bgcolor: "rgba(255,255,255,0.08)",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+ 
+          {/* Counter */}
+          <Typography
+            sx={{
+              position: "absolute", top: { xs: 14, sm: 28 }, left: { xs: 16, sm: 28 },
+              color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 600,
+            }}
+          >
+            {index + 1} / {images.length}
+          </Typography>
+ 
+          {/* Prev arrow */}
+          {images.length > 1 && (
+            <IconButton
+              onClick={goPrev}
+              sx={{
+                position: "absolute", left: { xs: 8, sm: 24 }, top: "50%", transform: "translateY(-50%)",
+                color: "#fff", bgcolor: "rgba(255,255,255,0.08)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
+              }}
+            >
+              <ChevronLeftIcon fontSize="large" />
+            </IconButton>
+          )}
+ 
+          {/* Main image */}
+          <Box
+            component="img"
+            onClick={(e) => e.stopPropagation()}
+            src={images[index]}
+            alt={`Gallery image ${index + 1}`}
+            sx={{
+              maxWidth: { xs: "92vw", sm: "82vw" },
+              maxHeight: { xs: "70vh", sm: "78vh" },
+              objectFit: "contain",
+              borderRadius: 2,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            }}
+          />
+ 
+          {/* Next arrow */}
+          {images.length > 1 && (
+            <IconButton
+              onClick={goNext}
+              sx={{
+                position: "absolute", right: { xs: 8, sm: 24 }, top: "50%", transform: "translateY(-50%)",
+                color: "#fff", bgcolor: "rgba(255,255,255,0.08)",
+                "&:hover": { bgcolor: "rgba(255,255,255,0.18)" },
+              }}
+            >
+              <ChevronRightIcon fontSize="large" />
+            </IconButton>
+          )}
+ 
+          {/* Thumbnail strip */}
+          {images.length > 1 && (
+            <Box
+              onClick={(e) => e.stopPropagation()}
+              sx={{
+                position: "absolute", bottom: { xs: 14, sm: 28 },
+                display: "flex", gap: 1, maxWidth: "90vw", overflowX: "auto", px: 1, py: 0.5,
+              }}
+            >
+              {images.map((src, i) => (
+                <Box
+                  key={i}
+                  component="img"
+                  src={src}
+                  onClick={() => onIndexChange(i)}
+                  sx={{
+                    width: 56, height: 42, objectFit: "cover", borderRadius: 1.2,
+                    cursor: "pointer", flexShrink: 0,
+                    border: i === index ? "2px solid #fff" : "2px solid transparent",
+                    opacity: i === index ? 1 : 0.55,
+                    transition: "opacity 0.15s, border-color 0.15s",
+                    "&:hover": { opacity: 1 },
+                  }}
+                />
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Fade>
+    </Modal>
+  );
+}
 // ── Review Item — no edit/delete, read-only ───────────────────────────────────
 function ReviewItem({ name, content, rate }: { name: string; content: string; rate?: number }) {
   const initial = name.charAt(0).toUpperCase();
@@ -368,6 +517,15 @@ export default function RoomData() {
   const [error, setError] = useState("");
   const [activeImage, setActiveImage] = useState(0);
   const [bookHover, setBookHover] = useState(false);
+
+  // ── Lightbox state ─────────────────────────────────────────────────────────
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+ 
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   // ── Date picker ────────────────────────────────────────────────────────────
   const [dateAnchor, setDateAnchor] = useState<null | HTMLElement>(null);
@@ -581,10 +739,43 @@ const handleSubmitComment = async () => {
       </Box>
 
       {/* Gallery */}
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, height: { xs: "auto", sm: 460 }, mb: 4 }}>
-        <Box sx={{ flex: { xs: "0 0 auto", sm: "0 0 58%" }, height: { xs: 320, sm: "100%" }, borderRadius: 2, overflow: "hidden", bgcolor: "#F3F1FB" }}>
+  <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, height: { xs: "auto", sm: 460 }, mb: 4 }}>
+        <Box
+          onClick={() => mainImage && openLightbox(activeImage)}
+          sx={{
+            position: "relative",
+            flex: { xs: "0 0 auto", sm: "0 0 58%" }, height: { xs: 320, sm: "100%" },
+            borderRadius: 2, overflow: "hidden", bgcolor: "#F3F1FB",
+            cursor: mainImage ? "pointer" : "default",
+            "&:hover .lightbox-hint": { opacity: 1 },
+          }}
+        >
           {mainImage ? (
-            <Box component="img" src={mainImage} alt={`Room ${room.roomNumber}`} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/700x500?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <>
+              <Box component="img" src={mainImage} alt={`Room ${room.roomNumber}`} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/700x500?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              {/* Zoom hint overlay */}
+              <Box
+                className="lightbox-hint"
+                sx={{
+                  position: "absolute", inset: 0,
+                  bgcolor: "rgba(10,8,20,0.0)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  opacity: 0, transition: "opacity 0.2s, background-color 0.2s",
+                  "&:hover": { bgcolor: "rgba(10,8,20,0.25)" },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 44, height: 44, borderRadius: "50%",
+                    bgcolor: "rgba(255,255,255,0.9)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#3D2EBF",
+                  }}
+                >
+                  <ZoomInOutlinedIcon />
+                </Box>
+              </Box>
+            </>
           ) : (
             <Box sx={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <Typography sx={{ fontSize: 13, color: "text.disabled" }}>No images available</Typography>
@@ -593,11 +784,34 @@ const handleSubmitComment = async () => {
         </Box>
         <Box sx={{ flex: { xs: "0 0 auto", sm: "1 1 auto" }, display: "flex", flexDirection: "column", gap: 1, height: { xs: "auto", sm: "100%" } }}>
           {sideImages.length > 0 ? (
-            sideImages.map((src, i) => (
-              <Box key={i} onClick={() => setActiveImage(gallery.indexOf(src))} sx={{ flex: "1 1 0", height: { xs: 155, sm: "auto" }, borderRadius: 2, overflow: "hidden", cursor: "pointer", bgcolor: "#F3F1FB" }}>
-                <Box component="img" src={src} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/400x300?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-              </Box>
-            ))
+            sideImages.map((src, i) => {
+              const realIdx = gallery.indexOf(src);
+              return (
+                <Box
+                  key={i}
+                  onClick={() => openLightbox(realIdx)}
+                  sx={{
+                    position: "relative",
+                    flex: "1 1 0", height: { xs: 155, sm: "auto" },
+                    borderRadius: 2, overflow: "hidden", cursor: "pointer", bgcolor: "#F3F1FB",
+                    "&:hover .lightbox-hint-small": { opacity: 1 },
+                  }}
+                >
+                  <Box component="img" src={src} onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = "https://placehold.co/400x300?text=Room"; }} sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <Box
+                    className="lightbox-hint-small"
+                    sx={{
+                      position: "absolute", inset: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      opacity: 0, transition: "opacity 0.2s, background-color 0.2s",
+                      "&:hover": { bgcolor: "rgba(10,8,20,0.25)" },
+                    }}
+                  >
+                    <ZoomInOutlinedIcon sx={{ color: "#fff", fontSize: 20 }} />
+                  </Box>
+                </Box>
+              );
+            })
           ) : (
             <>
               <Skeleton variant="rounded" sx={{ flex: "1 1 0", borderRadius: 2 }} />
@@ -606,6 +820,15 @@ const handleSubmitComment = async () => {
           )}
         </Box>
       </Box>
+ 
+      {/* Lightbox modal */}
+      <ImageLightbox
+        images={gallery}
+        index={lightboxIndex}
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        onIndexChange={setLightboxIndex}
+      />
 
       {/* Body */}
       <Grid container spacing={3}>
