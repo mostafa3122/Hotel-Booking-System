@@ -111,8 +111,8 @@ function facilityIcon(name: string) {
 }
 
 // ── Date Range Calendar ───────────────────────────────────────────────────────
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const DAY_NAMES = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const DAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -452,17 +452,17 @@ export default function RoomData() {
       const reviewList: Review[] = Array.isArray(rData)
         ? rData
         : Array.isArray(rData?.reviews)
-        ? rData.reviews
-        : Array.isArray(rData?.roomReviews)
-        ? rData.roomReviews
-        : [];
+          ? rData.reviews
+          : Array.isArray(rData?.roomReviews)
+            ? rData.roomReviews
+            : [];
 
       const cData = commentsRes.data?.data;
       const commentList: Comment[] = Array.isArray(cData?.roomComments)
         ? cData.roomComments
         : Array.isArray(cData)
-        ? cData
-        : [];
+          ? cData
+          : [];
 
       setReviews(reviewList);
       setComments(commentList);
@@ -583,7 +583,45 @@ export default function RoomData() {
 
   const handleBookingClick = () => {
     if (!isLoggedIn) { navigate("/auth/login"); return; }
-    navigate("/bookingPayment", { state: { roomId: room._id, checkIn, checkOut, price: finalPrice } });
+    if (!checkIn || !checkOut) {
+      toast.warning("Please select check-in and check-out dates first.");
+      return;
+    }
+
+    const oneDay = 24 * 60 * 60 * 1000;
+    const diffTime = checkOut.getTime() - checkIn.getTime();
+    const diffDays = Math.round(diffTime / oneDay);
+    const nights = diffDays > 0 ? diffDays : 1;
+
+    const formatDate = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const subTotal = finalPrice * nights;
+    const tax = subTotal * 0.1;
+    const total = subTotal + tax;
+
+    navigate("/bookingPayment", {
+      state: {
+        room: {
+          _id: room._id,
+          roomNumber: room.roomNumber,
+          price: room.price,
+          discount: room.discount,
+          capacity: room.capacity,
+          images: room.images,
+        },
+        startDate: formatDate(checkIn),
+        endDate: formatDate(checkOut),
+        nights,
+        subTotal,
+        tax,
+        total,
+      },
+    });
   };
 
   const mainImage = galleryImages[activeImage];
@@ -699,7 +737,7 @@ export default function RoomData() {
             {room.discount > 0 && (
               <Typography sx={{ fontSize: 12, color: "#E0473E", fontWeight: 600, mb: 2 }}>Discount {room.discount}% Off</Typography>
             )}
-            <Typography sx={{ fontSize: 11.5, color: "#9A97AE", fontWeight: 600, mb: 0.8 , mt:8 }}>Pick a Date</Typography>
+            <Typography sx={{ fontSize: 11.5, color: "#9A97AE", fontWeight: 600, mb: 0.8, mt: 8 }}>Pick a Date</Typography>
             <Box onClick={openDatePicker} sx={{ display: "flex", alignItems: "center", gap: 1, border: "1px solid #EFEDF8", borderRadius: 1.5, px: 1.5, py: 1, mb: 2, cursor: "pointer", transition: "border-color 0.15s", "&:hover": { borderColor: "#D9D3F7" } }}>
               <CalendarMonthOutlinedIcon sx={{ fontSize: 17, color: "#3D2EBF" }} />
               <Typography sx={{ fontSize: 12.5, color: checkIn ? "#1F1B3C" : "#9A97AE", fontWeight: 500 }}>

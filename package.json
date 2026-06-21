@@ -17,6 +17,8 @@
     "@mui/x-charts": "^9.5.0",
     "@mui/x-data-grid": "^9.4.0",
     "@mui/x-date-pickers": "^9.6.0",
+    "@stripe/react-stripe-js": "^6.6.0",
+    "@stripe/stripe-js": "^9.8.0",
     "axios": "^1.17.0",
     "dayjs": "^1.11.21",
     "framer-motion": "^12.40.0",
