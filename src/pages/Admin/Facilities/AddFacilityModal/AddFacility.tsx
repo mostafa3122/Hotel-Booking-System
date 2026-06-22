@@ -45,7 +45,7 @@ export default function AddFacilityModal({
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: {  },
   } = useForm<FacilityFormData>({
     defaultValues: {
       name: "",

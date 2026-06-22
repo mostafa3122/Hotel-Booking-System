@@ -56,14 +56,14 @@ interface BookingState {
 function BookingPaymentForm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userData, token } = useContext(AuthContext);
+  const { userData } = useContext(AuthContext);
 
   const stripe = useStripe();
   const elements = useElements();
 
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [bookingData, setBookingData] = useState<BookingState | null>(() => {
+  const [bookingData] = useState<BookingState | null>(() => {
     if (location.state) {
       return location.state as BookingState;
     }
