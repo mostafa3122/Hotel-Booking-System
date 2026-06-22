@@ -1,29 +1,32 @@
 import { Box, Typography } from "@mui/material";
 import SharedTitle from "../../../../shared/userSharedComponent/SharedTitle/SharedTitle";
-
+import LivingRoom1 from "../../../../assets/Images/LivingRoom1.png";
+import LivingRoom2 from "../../../../assets/Images/LivingRoom2.png";
+import LivingRoom3 from "../../../../assets/Images/LivingRoom3.png";
+import LivingRoom4 from "../../../../assets/Images/LivingRoom4.png";
 export default function LivingRoom() {
-  const houses = [
-    {
-      title: "Green Park",
-      desc: "Tangerang, Indonesia",
-      img: "/src/assets/Images/LivingRoom1.png",
-    },
-    {
-      title: "Podo Wae",
-      desc: "Madiun, Indonesia",
-      img: "/src/assets/Images/LivingRoom2.png",
-    },
-    {
-      title: "Silver Rain",
-      desc: "Bandung, Indonesia",
-      img: "/src/assets/Images/LivingRoom3.png",
-    },
-    {
-      title: "Cashville",
-      desc: "Kemang, Indonesia",
-      img: "/src/assets/Images/LivingRoom4.png",
-    },
-  ];
+const houses = [
+  {
+    title: "Green Park",
+    desc: "Tangerang, Indonesia",
+    img: LivingRoom1,
+  },
+  {
+    title: "Podo Wae",
+    desc: "Madiun, Indonesia",
+    img: LivingRoom2,
+  },
+  {
+    title: "Silver Rain",
+    desc: "Bandung, Indonesia",
+    img: LivingRoom3,
+  },
+  {
+    title: "Cashville",
+    desc: "Kemang, Indonesia",
+    img: LivingRoom4,
+  },
+];
 
   return (
     <Box sx={{ py: 5,  }}>
