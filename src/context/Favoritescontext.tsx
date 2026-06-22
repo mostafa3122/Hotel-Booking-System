@@ -12,14 +12,16 @@ interface FavoritesContextType {
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const { token } = useContext(AuthContext);
+  const { token, role } = useContext(AuthContext);
   const [favoriteCount, setFavoriteCount] = useState(0);
 
-  // Pulls the real count from the server — used on login and whenever we
-  // want to make sure the badge matches reality (e.g. after visiting the
-  // favorites page).
+  // Only regular (non-admin) logged-in users have access to portal endpoints.
+  // Admins get a 401 from /portal/favorite-rooms because their token is scoped
+  // to admin endpoints only — so we skip the fetch entirely for them.
+  const isRegularUser = !!token && role !== "admin";
+
   const refreshFavoriteCount = useCallback(async () => {
-    if (!token) {
+    if (!isRegularUser) {
       setFavoriteCount(0);
       return;
     }
@@ -30,7 +32,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Stay quiet — worst case the badge is briefly stale, not worth a toast.
     }
-  }, [token]);
+  }, [isRegularUser]);
 
   // Re-sync whenever auth state changes (login fetches the real count,
   // logout resets it to 0).

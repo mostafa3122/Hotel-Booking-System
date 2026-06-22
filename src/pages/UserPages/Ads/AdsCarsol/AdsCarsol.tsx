@@ -90,7 +90,7 @@ export default function AllAdsSwiper() {
 
   return (
     <Box sx={{ maxWidth: "1400px", mx: "auto", py: 8 }}>
-      <SharedTitle title="Most" highlight="popular ads" />
+      <SharedTitle title="" highlight="ADS" />
 
       {/* SWIPER */}
       <Box sx={{mt:4}} >
