@@ -194,7 +194,7 @@ export default function BookingCard() {
           endDate: checkOut.format("YYYY-MM-DD"),
         },
       });
-      // console.log(response?.data?.data?.rooms);
+      console.log(response?.data?.data?.rooms);
     } catch (error) {
       console.log(error);
     }

@@ -14,7 +14,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import InputAdornment from "@mui/material/InputAdornment";
 import Autocomplete from "@mui/material/Autocomplete";
-import type { AutocompleteRenderGetTagProps } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
 
