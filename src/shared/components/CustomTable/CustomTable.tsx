@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DataGrid, type GridColDef, type GridRenderCellParams, type GridRowsProp } from '@mui/x-data-grid';
+import { DataGrid, type GridColDef, type GridRenderCellParams} from '@mui/x-data-grid';
 import { IconButton, Menu, MenuItem } from '@mui/material';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';

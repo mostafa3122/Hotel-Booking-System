@@ -27,9 +27,7 @@ interface ResetPasswordFormData {
   confirmPassword: string;
 }
 
-interface ApiResponse {
-  message?: string;
-}
+
 
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);

@@ -23,7 +23,6 @@ import { AuthContext } from "../../../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import ConfirmationDialog from "../ConfirmationDialog/ConfirmationDialog";
 import logoutImg from "../../../assets/logout.png";
-import logo from "../../../assets/Logo.svg";
 
 interface SidebarProps {
   isCollapsed: boolean;
