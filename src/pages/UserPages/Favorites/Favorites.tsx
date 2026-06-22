@@ -18,8 +18,10 @@ import axiosClient from "../../../services/api/axiosClient";
 import cardImage from "../../../assets/card.png";
 import PageHeader from "../../../shared/userSharedComponent/PageHeader/PageHeader";
 
+
 import axios from "axios";
 import RemoveFavoriteButton from "../Ads/FavoriteButton/RemoveFavoriteButton";
+import { useFavorites } from "../../../context/Favoritescontext";
 
 interface Room {
   _id: string;
@@ -34,6 +36,7 @@ export default function Favorites() {
   const [favoriteRooms, setFavoriteRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { refreshFavoriteCount } = useFavorites();
 
   const [toast, setToast] = useState({
     open: false,
@@ -83,6 +86,9 @@ export default function Favorites() {
 
   useEffect(() => {
     getFavoriteRooms();
+    // Re-sync the navbar badge with the server's real count whenever this
+    // page is visited, in case it drifted (e.g. favorited from another tab).
+    refreshFavoriteCount();
   }, []);
 
   return (

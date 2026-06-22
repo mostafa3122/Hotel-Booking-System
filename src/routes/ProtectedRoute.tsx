@@ -10,7 +10,7 @@ export default function ProtectedRoute({
   const { token } = useContext(AuthContext);
 
   if (!token) {
-    return <Navigate to="/" />;
+    return <Navigate to="/auth/login" />;
   }
 
   return children;

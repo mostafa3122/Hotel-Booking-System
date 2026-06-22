@@ -10,7 +10,7 @@ axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
-      config.headers.Authorization = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
+      config.headers.Authorization = token.startsWith("Bearer") ? token : `Bearer ${token}`;
     }
     return config;
   },
@@ -29,7 +29,7 @@ axiosClient.interceptors.response.use(
         error?.response?.data?.message || "Session expired. Please login again."
       );
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      window.location.href = "/auth/login";
     }
     return Promise.reject(error);
   }

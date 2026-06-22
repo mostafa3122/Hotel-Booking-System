@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Avatar,
+  Badge,
   Typography,
   IconButton,
   Drawer,
@@ -32,8 +33,10 @@ import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 
 import { AuthContext } from "../../../context/AuthContext";
+
 import avatar from "../../../assets/avatar.png";
 import CustomButton from "../../components/CustomButton/CustomButton";
+import { useFavorites } from "../../../context/Favoritescontext";
 
 const NAV_LINKS = [
   { to: "/", label: "Home", icon: HomeOutlinedIcon, authOnly: false },
@@ -42,10 +45,10 @@ const NAV_LINKS = [
   { to: "/favorites", label: "Favorites", icon: FavoriteBorderOutlinedIcon, authOnly: true },
 ];
 
-// ── Desktop nav link — adds active highlighting + underline, and fixes the
-// default MUI Button uppercase transform that was silently turning
-// "Home" / "Explore" into "HOME" / "EXPLORE". ─────────────────────────────────
-function NavItem({ to, label }: { to: string; label: string }) {
+// ── Desktop nav link — adds active highlighting + underline, fixes the
+// default MUI Button uppercase transform, and optionally shows a badge
+// (used for the live favorites counter). ─────────────────────────────────────
+function NavItem({ to, label, badgeCount }: { to: string; label: string; badgeCount?: number }) {
   const location = useLocation();
   const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
 
@@ -77,23 +80,44 @@ function NavItem({ to, label }: { to: string; label: string }) {
         "&:hover::after": { transform: "translateX(-50%) scaleX(1)" },
       }}
     >
-      {label}
+      {badgeCount !== undefined ? (
+        <Badge
+          badgeContent={badgeCount}
+          color="error"
+          sx={{
+            "& .MuiBadge-badge": {
+              right: -10,
+              top: -6,
+              fontSize: 10,
+              height: 16,
+              minWidth: 16,
+              padding: "0 4px",
+            },
+          }}
+        >
+          {label}
+        </Badge>
+      ) : (
+        label
+      )}
     </Button>
   );
 }
 
-// ── Mobile drawer link — same active-state logic, with a leading icon to
-// match the desktop avatar menu's visual language. ───────────────────────────
+// ── Mobile drawer link — same active-state logic, with a leading icon
+// (also carrying the badge, when provided). ──────────────────────────────────
 function MobileNavItem({
   to,
   label,
   Icon,
   onClick,
+  badgeCount,
 }: {
   to: string;
   label: string;
   Icon: React.ElementType;
   onClick: () => void;
+  badgeCount?: number;
 }) {
   const location = useLocation();
   const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
@@ -113,9 +137,19 @@ function MobileNavItem({
         }}
       >
         <ListItemIcon sx={{ minWidth: 34, color: isActive ? "#3252DF" : "#8A92A6" }}>
-          <Icon sx={{ fontSize: 20 }} />
+          {badgeCount !== undefined ? (
+            <Badge
+              badgeContent={badgeCount}
+              color="error"
+              sx={{ "& .MuiBadge-badge": { right: -4, top: -2, fontSize: 9, height: 14, minWidth: 14 } }}
+            >
+              <Icon sx={{ fontSize: 20 }} />
+            </Badge>
+          ) : (
+            <Icon sx={{ fontSize: 20 }} />
+          )}
         </ListItemIcon>
-      <ListItemText
+        <ListItemText
           primary={
             <Typography
               sx={{
@@ -135,6 +169,7 @@ function MobileNavItem({
 
 export default function PublicNavbar() {
   const { token, userData, logout } = useContext(AuthContext);
+  const { favoriteCount } = useFavorites();
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
@@ -207,7 +242,12 @@ export default function PublicNavbar() {
             }}
           >
             {visibleLinks.map((link) => (
-              <NavItem key={link.to} to={link.to} label={link.label} />
+              <NavItem
+                key={link.to}
+                to={link.to}
+                label={link.label}
+                badgeCount={link.label === "Favorites" ? favoriteCount : undefined}
+              />
             ))}
           </Box>
 
@@ -393,6 +433,7 @@ export default function PublicNavbar() {
                 label={link.label}
                 Icon={link.icon}
                 onClick={toggleDrawer}
+                badgeCount={link.label === "Favorites" ? favoriteCount : undefined}
               />
             ))}
 
@@ -405,14 +446,14 @@ export default function PublicNavbar() {
                     <ListItemIcon sx={{ minWidth: 34, color: "#8A92A6" }}>
                       <LoginOutlinedIcon sx={{ fontSize: 20 }} />
                     </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
-                            Login
-                          </Typography>
-                        }
-                      />                  
-                      </ListItemButton>
+                    <ListItemText
+                      primary={
+                        <Typography sx={{ fontSize: 14, fontWeight: 500 }}>
+                          Login
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
                 </ListItem>
 
                 <ListItem disablePadding>
@@ -442,7 +483,7 @@ export default function PublicNavbar() {
                   <ListItemIcon sx={{ minWidth: 34, color: "#EA5455" }}>
                     <LogoutIcon sx={{ fontSize: 20 }} />
                   </ListItemIcon>
-                 <ListItemText
+                  <ListItemText
                     primary={
                       <Typography
                         sx={{

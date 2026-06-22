@@ -2,6 +2,8 @@ import IconButton from "@mui/material/IconButton";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
 import axiosClient from "../../../../services/api/axiosClient";
+import { useFavorites } from "../../../../context/Favoritescontext";
+
 
 type Props = {
   roomId: string;
@@ -15,6 +17,7 @@ export default function RemoveFavoriteButton({
   onError,
 }: Props) {
   const [loading, setLoading] = useState(false);
+  const { decrementFavoriteCount } = useFavorites();
 
   const handleRemove = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -28,6 +31,7 @@ export default function RemoveFavoriteButton({
         data: { roomId },
       });
 
+      decrementFavoriteCount();
       onSuccess?.("Removed from favorites");
     } catch (error: unknown) {
       let msg = "Failed to remove favorite";
