@@ -5,7 +5,7 @@ import Houses from "./Houses/Houses";
 import LivingRoom from "./Holes/LivingRoom";
 import AdsCarsol from "../Ads/AdsCarsol/AdsCarsol";
 import SectionReview from "../SectionReview/SectionReview";
-
+import HomeImage from "../../../assets/Home.png";
 export default function Home() {
   return (
     <Box>
@@ -60,7 +60,7 @@ export default function Home() {
                 }}
               >
                 <img
-                  src="/src/assets/Home.png"
+                  src={HomeImage}
                   alt="vacation hero"
                   style={{
                     width: "100%",

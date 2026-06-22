@@ -1,29 +1,34 @@
 import { Box, Typography } from "@mui/material";
 import SharedTitle from "../../../../shared/userSharedComponent/SharedTitle/SharedTitle";
+import House1 from "../../../../assets/Images/Houses1.png";
+import House2 from "../../../../assets/Images/Houses2.png";
+import House3 from "../../../../assets/Images/Houses3.png";
+import House4 from "../../../../assets/Images/Houses4.png";
 
 export default function Houses() {
-  const houses = [
-    {
-      title: "Tabby Town",
-      desc: "Gunung Batu, Indonesia",
-      img: "/src/assets/Images/Houses1.png",
-    },
-    {
-      title: "Anggana",
-      desc: "Bogor, Indonesia",
-      img: "/src/assets/Images/Houses2.png",
-    },
-    {
-      title: "Seattle Rain",
-      desc: "Jakarta, Indonesia",
-      img: "/src/assets/Images/Houses3.png",
-    },
-    {
-      title: "Wodden Pit",
-      desc: "Wonosobo, Indonesia",
-      img: "/src/assets/Images/Houses4.png",
-    },
-  ];
+  
+const houses = [
+  {
+    title: "Tabby Town",
+    desc: "Gunung Batu, Indonesia",
+    img: House1,
+  },
+  {
+    title: "Anggana",
+    desc: "Bogor, Indonesia",
+    img: House2,
+  },
+  {
+    title: "Seattle Rain",
+    desc: "Jakarta, Indonesia",
+    img: House3,
+  },
+  {
+    title: "Wodden Pit",
+    desc: "Wonosobo, Indonesia",
+    img: House4,
+  },
+];
 
   return (
     <Box sx={{ py: 5 }}>
